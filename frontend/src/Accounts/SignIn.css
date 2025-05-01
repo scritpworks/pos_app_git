@@ -1,0 +1,247 @@
+.signin-container {
+  min-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgb(26, 32, 53);
+  padding: 16px;
+  width: 100%;
+  box-sizing: border-box;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.signin-card {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  width: 100%;
+  max-width: 380px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  transform: translateY(0);
+  transition: transform 0.3s ease;
+}
+
+.signin-card:hover {
+  transform: translateY(-2px);
+}
+
+.signin-title {
+  font-size: 2rem !important;
+  font-weight: 700 !important;
+  text-align: center;
+  margin-bottom: 4px !important;
+  color: rgb(26, 32, 53) !important;
+  letter-spacing: -0.5px !important;
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.signin-title::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 3px;
+  background-color: rgb(26, 32, 53);
+  border-radius: 2px;
+}
+
+.signin-subtitle {
+  text-align: center;
+  color: #64748b !important;
+  margin-bottom: 24px !important;
+  font-size: 0.9rem !important;
+}
+
+.signin-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.signin-input {
+  width: 100%;
+}
+
+.signin-input .MuiOutlinedInput-root {
+  background-color: #f8fafc;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  height: 48px;
+  transition: all 0.2s ease;
+}
+
+.signin-input .MuiOutlinedInput-root:hover {
+  background-color: #f1f5f9;
+}
+
+.signin-input .MuiOutlinedInput-root.Mui-focused {
+  background-color: #fff;
+  box-shadow: 0 0 0 2px rgba(26, 32, 53, 0.2);
+}
+
+.signin-input .MuiInputLabel-root {
+  font-size: 0.9rem;
+}
+
+.forgot-password {
+  color: rgb(26, 32, 53) !important;
+  text-align: right;
+  cursor: pointer;
+  font-weight: 500 !important;
+  font-size: 0.85rem !important;
+  padding: 8px 0;
+  display: inline-block;
+  touch-action: manipulation;
+}
+
+.signin-button {
+  background-color: rgb(26, 32, 53) !important;
+  color: white !important;
+  padding: 10px !important;
+  border-radius: 8px !important;
+  text-transform: none !important;
+  font-weight: 500 !important;
+  font-size: 0.9rem !important;
+  min-height: 48px !important;
+  transition: all 0.2s ease !important;
+  overflow: hidden;
+  position: relative;
+}
+
+.signin-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(26, 32, 53, 0.2);
+}
+
+.signin-button:active {
+  transform: translateY(0);
+}
+
+.button-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* Add ripple effect */
+.signin-button::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  opacity: 0;
+  transition: transform 0.4s ease-out, opacity 0.4s ease-out;
+}
+
+.signin-button:active::after {
+  transform: translate(-50%, -50%) scale(2);
+  opacity: 0;
+}
+
+.divider-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0;
+  width: 100%;
+}
+
+.divider {
+  flex: 1;
+}
+
+.divider-text {
+  color: #64748b !important;
+  white-space: nowrap;
+  font-size: 0.85rem !important;
+}
+
+.social-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  width: 100%;
+}
+
+.social-button {
+  color: rgb(26, 32, 53) !important;
+  border-color: #e2e8f0 !important;
+  text-transform: none !important;
+  font-weight: 500 !important;
+  padding: 10px 8px !important;
+  font-size: 0.85rem !important;
+  min-width: unset !important;
+  height: 48px !important;
+  touch-action: manipulation;
+}
+
+.social-button .MuiButton-startIcon {
+  margin-right: 8px !important;
+}
+
+.social-button .MuiSvgIcon-root {
+  font-size: 1.25rem !important;
+}
+
+.signup-prompt {
+  text-align: center;
+  color: #64748b !important;
+  margin-top: 20px !important;
+  font-size: 0.85rem !important;
+  width: 100%;
+}
+
+.signup-link {
+  color: rgb(26, 32, 53) !important;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 8px;
+  display: inline-block;
+  touch-action: manipulation;
+}
+
+@media (max-width: 600px) {
+  .signin-container {
+    padding: 12px;
+    position: fixed;
+    height: -webkit-fill-available;
+    min-height: -webkit-fill-available;
+  }
+
+  .signin-card {
+    padding: 20px;
+    margin: auto 0;
+  }
+
+  .social-buttons {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .social-button {
+    padding: 8px 4px !important;
+  }
+
+  .forgot-password,
+  .signup-link,
+  .social-button {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}

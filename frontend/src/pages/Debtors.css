@@ -1,0 +1,461 @@
+/* Debtors.css */
+
+.debtors-page {
+  padding: 24px;
+}
+
+/* Header styles - Matching SalesHistory.js */
+.roles-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.page-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: rgb(26, 32, 53);
+  margin: 0;
+}
+
+.page-subtitle {
+  font-size: 0.875rem;
+  color: rgb(100, 116, 139);
+  margin-top: 4px;
+}
+
+.add-role-button {
+  background-color: rgb(26, 32, 53) !important;
+  font-weight: 500 !important;
+  font-size: 0.75rem !important;
+  border-radius: 8px !important;
+  padding: 8px 16px !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+  text-transform: uppercase !important;
+}
+
+.add-role-button:hover {
+  background-color: rgba(26, 32, 53, 0.9) !important;
+}
+
+/* Table styles from SalesHistory.js */
+.sale-items-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+  font-size: 0.875rem;
+}
+
+.sale-items-table thead th {
+  background-color: #f8fafc;
+  color: rgb(100, 116, 139);
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-align: left;
+  padding: 12px 16px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.sale-items-table tbody td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  color: rgb(26, 32, 53);
+  font-size: 0.8125rem;
+}
+
+.sale-summary {
+  min-width: 200px;
+}
+
+.sale-summary-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  font-size: 0.875rem;
+}
+
+.sale-summary-row.total {
+  padding-top: 12px;
+  border-top: 1px solid #e2e8f0;
+  margin-top: 4px;
+  font-size: 1rem;
+}
+
+/* Summary cards */
+.summary-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.summary-card {
+  padding: 16px;
+  border-radius: 8px !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important;
+  border: 1px solid #e2e8f0 !important;
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.summary-label {
+  font-size: 0.75rem !important;
+  color: rgb(100, 116, 139) !important;
+  margin-bottom: 8px !important;
+}
+
+.summary-value {
+  font-size: 1.5rem !important;
+  font-weight: 600 !important;
+  color: rgb(26, 32, 53) !important;
+}
+
+.summary-value.collected {
+  color: #10b981 !important; /* Green */
+}
+
+.summary-value.outstanding {
+  color: #ef4444 !important; /* Red */
+}
+
+.summary-value.overdue {
+  color: #f59e0b !important; /* Amber */
+}
+
+/* Status chips */
+.status-chip-paid {
+  background-color: #e6f7ee !important;
+  color: #0c6b3d !important;
+  border: 1px solid #b7ebd3 !important;
+  font-size: 0.7rem !important;
+  font-weight: 500 !important;
+}
+
+.status-chip-pending {
+  background-color: #fff8e6 !important;
+  color: #996500 !important;
+  border: 1px solid #ffebc2 !important;
+  font-size: 0.7rem !important;
+  font-weight: 500 !important;
+}
+
+.status-chip-partial {
+  background-color: #eef3ff !important;
+  color: #1e429f !important;
+  border: 1px solid #c6dbff !important;
+  font-size: 0.7rem !important;
+  font-weight: 500 !important;
+}
+
+.status-chip-overdue {
+  background-color: #fcebeb !important;
+  color: #b42424 !important;
+  border: 1px solid #f8d0d0 !important;
+  font-size: 0.7rem !important;
+  font-weight: 500 !important;
+}
+
+/* Debtor Cards Container */
+.debtors-cards-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Debtor Card */
+.debtor-card {
+  border-radius: 12px !important;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  transition: all 0.3s ease !important;
+}
+
+.debtor-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Card Header */
+.debtor-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  cursor: pointer;
+}
+
+.debtor-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.debtor-avatar {
+  width: 48px !important;
+  height: 48px !important;
+  font-size: 1.2rem !important;
+  font-weight: 600 !important;
+  background-color: #e2e8f0 !important;
+  color: rgb(26, 32, 53) !important;
+}
+
+.debtor-avatar.status-paid {
+  background-color: #10b981 !important;
+  color: white !important;
+}
+
+.debtor-avatar.status-partial {
+  background-color: #3b82f6 !important;
+  color: white !important;
+}
+
+.debtor-avatar.status-overdue {
+  background-color: #ef4444 !important;
+  color: white !important;
+}
+
+.debtor-avatar.status-pending {
+  background-color: #f59e0b !important;
+  color: white !important;
+}
+
+.debtor-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.debtor-name {
+  font-weight: 600 !important;
+  font-size: 1rem !important;
+  color: rgb(26, 32, 53) !important;
+}
+
+.debtor-contact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.debtor-phone, .debtor-location {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: rgb(100, 116, 139);
+}
+
+.debtor-phone svg, .debtor-location svg {
+  font-size: 0.875rem !important;
+  opacity: 0.8;
+}
+
+.debtor-amount-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.debtor-amount {
+  font-weight: 600 !important;
+  color: rgb(26, 32, 53) !important;
+  font-size: 1.125rem !important;
+}
+
+.debtor-due-date {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: rgb(100, 116, 139);
+}
+
+.debtor-due-date svg {
+  font-size: 0.875rem !important;
+  opacity: 0.8;
+}
+
+.debtor-status {
+  margin-left: 4px;
+}
+
+.expand-button {
+  transition: transform 0.3s ease !important;
+}
+
+.expand-button.expanded {
+  transform: rotate(180deg);
+}
+
+/* Card Content */
+.debtor-card-content {
+  padding: 0 16px 16px;
+}
+
+/* Payment Summary */
+.payment-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  padding: 16px 0;
+}
+
+.payment-info {
+  min-width: 120px;
+}
+
+.payment-label {
+  color: rgb(100, 116, 139) !important;
+  font-size: 0.75rem !important;
+  margin-bottom: 4px !important;
+}
+
+.payment-value {
+  font-weight: 500 !important;
+  font-size: 0.875rem !important;
+  color: rgb(26, 32, 53) !important;
+}
+
+.payment-value.collected {
+  color: #10b981 !important;
+}
+
+.payment-value.outstanding {
+  color: #ef4444 !important;
+}
+
+/* Debtor Items */
+.debtor-items {
+  padding: 16px 0;
+}
+
+.items-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px !important;
+  font-weight: 600 !important;
+  color: rgb(26, 32, 53) !important;
+}
+
+.items-list {
+  padding: 0 !important;
+}
+
+.item-row {
+  padding: 8px 0 !important;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.item-amount {
+  font-weight: 500 !important;
+  color: rgb(26, 32, 53) !important;
+}
+
+/* Debtor Notes */
+.debtor-notes {
+  padding: 16px 0;
+  color: rgb(100, 116, 139);
+}
+
+/* Debtor Actions */
+.debtor-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 16px;
+}
+
+.record-payment-button {
+  background-color: rgb(26, 32, 53) !important;
+  font-weight: 500 !important;
+  font-size: 0.75rem !important;
+  border-radius: 8px !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+  text-transform: uppercase !important;
+}
+
+.record-payment-button:hover {
+  background-color: rgba(26, 32, 53, 0.9) !important;
+}
+
+/* Dialog styles */
+.payment-customer-info {
+  margin-bottom: 16px;
+}
+
+.payment-summary-dialog {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+.payment-info-dialog {
+  min-width: 120px;
+}
+
+/* Loading and No Results */
+.loading-container, .no-results {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  width: 100%;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  color: rgb(100, 116, 139);
+}
+
+/* Responsive adjustments */
+@media (max-width: 960px) {
+  .debtor-amount-section {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 768px) {
+  .roles-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  
+  .add-role-button {
+    width: 100%;
+  }
+  
+  .summary-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .debtor-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  
+  .debtor-amount-section {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 600px) {
+  .debtor-contact {
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .payment-summary {
+    flex-direction: column;
+    gap: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .summary-cards {
+    grid-template-columns: 1fr;
+  }
+}

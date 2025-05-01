@@ -1,0 +1,520 @@
+.topbar {
+  height: 64px;
+  background-color: rgb(26, 32, 53);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 1rem;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+}
+
+.toggle-button {
+  color: white !important;
+  margin-right: 1rem;
+}
+
+.brand-title {
+  color: white;
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 500;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+  z-index: 1300;
+}
+
+.icon-button {
+  color: white !important;
+}
+
+.profile-badge {
+  width: 32px;
+  height: 32px;
+  background-color: #3498db;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 500;
+  margin-left: 0.5rem;
+  cursor: pointer;
+}
+
+/* Message Dropdown Styles */
+.message-dropdown {
+  width: 320px;
+  background-color: white;
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+  z-index: 1300;
+}
+
+.message-header {
+  padding: 16px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.message-list {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.message-item {
+  padding: 12px 16px;
+  display: flex;
+  align-items: flex-start;
+  border-bottom: 1px solid #eee;
+  transition: background-color 0.2s;
+}
+
+.message-item:hover {
+  background-color: #f5f5f5;
+}
+
+.message-item.unread {
+  background-color: #f0f7ff;
+}
+
+.message-avatar {
+  width: 40px !important;
+  height: 40px !important;
+  margin-right: 12px;
+  background-color: #3498db !important;
+}
+
+.message-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.message-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.sender-name {
+  font-weight: 500;
+  color: #333;
+}
+
+.message-time {
+  color: #666;
+  font-size: 0.75rem;
+}
+
+.message-text {
+  color: #666;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.unread-indicator {
+  color: #3498db;
+  font-size: 8px !important;
+  margin-left: 8px;
+}
+
+.message-footer {
+  padding: 12px 16px;
+  text-align: center;
+  border-top: 1px solid #eee;
+}
+
+.view-all {
+  color: #3498db;
+  cursor: pointer;
+}
+
+/* Custom scrollbar for message list */
+.message-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.message-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.message-list::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 3px;
+}
+
+.message-list::-webkit-scrollbar-thumb:hover {
+  background: #999;
+}
+
+/* Override MUI Badge styles */
+.MuiBadge-badge {
+  background-color: #e74c3c !important;
+  color: white !important;
+  font-size: 0.7rem !important;
+  height: 18px !important;
+  min-width: 18px !important;
+  padding: 0 4px !important;
+  border-radius: 9px !important;
+}
+
+/* Ensure Popover is visible on all screen sizes */
+.MuiPopover-root {
+  z-index: 1300 !important;
+}
+
+/* Media queries for responsive design */
+@media (max-width: 768px) {
+  .brand-title {
+    font-size: 1.2rem;
+  }
+  
+  .message-dropdown {
+    width: 280px;
+  }
+}
+
+@media (max-width: 576px) {
+  .brand-title {
+    font-size: 1rem;
+  }
+  
+  .message-dropdown {
+    width: 250px;
+  }
+}
+
+/* Message Modal Styles */
+.message-modal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.message-modal-content {
+  background-color: white;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 400px;
+  max-height: 90vh;
+  overflow: hidden;
+  position: relative;
+  z-index: 1400;
+}
+
+.message-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  border-bottom: 1px solid #eee;
+}
+
+/* Notification Dropdown Styles */
+.notification-dropdown {
+  width: 320px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.notification-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(26, 32, 53, 0.08);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgb(26, 32, 53);
+  color: white;
+}
+
+.notification-list {
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 8px 0;
+}
+
+.notification-item {
+  padding: 12px 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+}
+
+.notification-item:hover {
+  background-color: rgba(26, 32, 53, 0.05);
+}
+
+.notification-item.unread {
+  background-color: rgba(26, 32, 53, 0.03);
+  border-left: 3px solid rgb(26, 32, 53);
+}
+
+.notification-item.unread:hover {
+  background-color: rgba(26, 32, 53, 0.08);
+}
+
+.notification-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.notification-icon.success {
+  background-color: rgba(46, 204, 113, 0.1);
+  color: #2ecc71;
+}
+
+.notification-icon.warning {
+  background-color: rgba(241, 196, 15, 0.1);
+  color: #f1c40f;
+}
+
+.notification-icon.error {
+  background-color: rgba(231, 76, 60, 0.1);
+  color: #e74c3c;
+}
+
+.notification-icon.info {
+  background-color: rgba(26, 32, 53, 0.1);
+  color: rgb(26, 32, 53);
+}
+
+.notification-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.notification-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 4px;
+}
+
+.notification-title span:first-child {
+  font-weight: 600;
+  color: rgb(26, 32, 53);
+  font-size: 0.9rem;
+}
+
+.notification-time {
+  font-size: 0.75rem;
+  color: rgba(26, 32, 53, 0.6);
+  white-space: nowrap;
+  margin-left: 8px;
+}
+
+.notification-text {
+  color: rgba(26, 32, 53, 0.7);
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.notification-footer {
+  padding: 12px 20px;
+  background-color: rgba(26, 32, 53, 0.02);
+  border-top: 1px solid rgba(26, 32, 53, 0.08);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.mark-all-read, .view-all {
+  color: rgb(26, 32, 53);
+  opacity: 0.8;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+}
+
+.mark-all-read:hover, .view-all:hover {
+  color: rgb(26, 32, 53);
+  opacity: 1;
+  text-decoration: none;
+}
+
+/* Custom scrollbar */
+.notification-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.notification-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.notification-list::-webkit-scrollbar-thumb {
+  background: rgba(26, 32, 53, 0.2);
+  border-radius: 4px;
+}
+
+.notification-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(26, 32, 53, 0.3);
+}
+
+/* Media queries for notification dropdown */
+@media (max-width: 768px) {
+  .notification-dropdown {
+    width: 280px;
+  }
+}
+
+@media (max-width: 576px) {
+  .notification-dropdown {
+    width: 250px;
+  }
+}
+
+.profile-dropdown {
+  width: 280px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.profile-header {
+  background: rgb(26, 32, 53);
+  padding: 24px 20px;
+  text-align: center;
+  color: white;
+}
+
+.profile-avatar {
+  width: 80px !important;
+  height: 80px !important;
+  margin: 0 auto 12px;
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+  font-size: 2rem !important;
+  border: 3px solid rgba(255, 255, 255, 0.2);
+}
+
+.profile-name {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.profile-role {
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+.profile-menu {
+  padding: 8px 0;
+}
+
+.profile-menu-item {
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #2c3e50;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.profile-menu-item:hover {
+  background-color: rgba(26, 32, 53, 0.05);
+  color: rgb(26, 32, 53);
+}
+
+.profile-menu-item .icon {
+  color: rgb(26, 32, 53);
+  opacity: 0.7;
+  font-size: 1.2rem;
+}
+
+.profile-menu-item:hover .icon {
+  color: rgb(26, 32, 53);
+  opacity: 1;
+}
+
+.profile-menu-item .text {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.profile-divider {
+  margin: 8px 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.profile-footer {
+  padding: 12px 20px;
+  background-color: #f8f9fa;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.logout-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #e74c3c;
+  font-weight: 500;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  width: 100%;
+  justify-content: center;
+  padding: 8px;
+  border-radius: 6px;
+}
+
+.logout-button:hover {
+  background-color: rgba(231, 76, 60, 0.1);
+}
+
+.logout-button .icon {
+  font-size: 1.2rem;
+}
+
+.message-avatar {
+  background-color: rgb(26, 32, 53) !important;
+  color: white !important;
+}
+
+.unread-indicator {
+  color: rgb(26, 32, 53) !important;
+}
+
+/* Custom scrollbar */
+.notification-list::-webkit-scrollbar-thumb,
+.message-list::-webkit-scrollbar-thumb {
+  background: rgba(26, 32, 53, 0.2);
+}
+
+.notification-list::-webkit-scrollbar-thumb:hover,
+.message-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(26, 32, 53, 0.3);
+} 

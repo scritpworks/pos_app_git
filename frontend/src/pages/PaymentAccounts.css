@@ -1,0 +1,255 @@
+.roles-container {
+  padding: 24px;
+}
+
+.roles-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.page-title {
+  color: rgb(26, 32, 53);
+  font-weight: 600;
+  margin: 0;
+}
+
+.page-subtitle {
+  color: #64748b;
+  margin-top: 4px;
+}
+
+.add-role-button {
+  background-color: rgb(26, 32, 53) !important;
+  text-transform: uppercase !important;
+  padding: 6px 12px !important;
+  font-size: 0.875rem !important;
+  min-height: 32px !important;
+}
+
+.add-role-button:hover {
+  background-color: rgba(26, 32, 53, 0.9) !important;
+}
+
+.roles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 24px;
+}
+
+.role-card {
+  padding: 24px;
+  border-radius: 12px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  background-color: white !important;
+}
+
+.role-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+.role-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.role-title {
+  font-weight: 600 !important;
+  color: rgb(26, 32, 53) !important;
+  margin: 0 !important;
+}
+
+.role-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.edit-button {
+  color: rgb(26, 32, 53) !important;
+}
+
+.delete-button {
+  color: #ef4444 !important;
+  transition: all 0.2s ease !important;
+}
+
+.permissions-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.permission-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Modal Styles */
+.role-modal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  width: 100%;
+  max-width: 500px;
+  margin: 16px;
+  outline: none;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.modal-header h6 {
+  font-weight: 600;
+  color: rgb(26, 32, 53);
+  margin: 0;
+}
+
+.modal-body {
+  margin-bottom: 24px;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 32px;
+}
+
+.permissions-switches {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.cancel-button {
+  color: rgb(26, 32, 53) !important;
+  border-color: rgb(26, 32, 53) !important;
+}
+
+.save-button {
+  background-color: rgb(26, 32, 53) !important;
+  color: white !important;
+}
+
+.save-button:hover {
+  background-color: rgba(26, 32, 53, 0.9) !important;
+}
+
+/* Confirm Delete Modal */
+.confirm-delete-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1500;
+}
+
+.confirm-modal-content {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  width: 100%;
+  max-width: 400px;
+  margin: 16px;
+}
+
+.confirm-modal-title {
+  color: rgb(26, 32, 53);
+  margin: 0 0 16px 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.confirm-modal-message {
+  color: #64748b;
+  margin-bottom: 24px;
+}
+
+.confirm-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.cancel-delete-btn {
+  padding: 8px 16px;
+  border: 1px solid rgb(26, 32, 53);
+  background: white;
+  color: rgb(26, 32, 53);
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.cancel-delete-btn:hover {
+  background: rgba(26, 32, 53, 0.05);
+}
+
+.confirm-delete-btn {
+  padding: 8px 16px;
+  border: none;
+  background: #ef4444;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.confirm-delete-btn:hover {
+  background: #dc2626;
+}
+
+/* Snackbar */
+.snackbar {
+  margin-top: 64px;
+}
+
+/* Responsive Styles */
+@media (max-width: 600px) {
+  .roles-container {
+    padding: 16px;
+  }
+
+  .roles-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .add-role-button {
+    width: 100%;
+  }
+
+  .roles-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .modal-content {
+    margin: 16px;
+    max-height: calc(100vh - 32px);
+    overflow-y: auto;
+  }
+} 

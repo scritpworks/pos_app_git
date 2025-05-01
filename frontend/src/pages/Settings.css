@@ -1,0 +1,498 @@
+@keyframes slideInFromRight {
+  0% {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.settings-container {
+  padding: 32px;
+  min-height: calc(100vh - 64px);
+  background-color: #f4f6f9;
+  max-width: 1200px;
+  margin: 0 auto;
+  animation: slideInFromRight 0.4s ease-out;
+}
+
+.page-title {
+  color: #2c3e50;
+  margin-bottom: 16px !important;
+  font-weight: 500 !important;
+}
+
+.title-divider {
+  margin-bottom: 24px !important;
+  background-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+.settings-section {
+  background-color: white;
+  border-radius: 16px;
+  padding: 32px;
+  margin-bottom: 32px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  opacity: 0;
+  animation: fadeInUp 0.5s ease-out forwards;
+}
+
+.settings-section:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.settings-section:nth-child(3) {
+  animation-delay: 0.2s;
+}
+
+.section-title {
+  color: #2c3e50;
+  margin-bottom: 32px;
+  font-weight: 600;
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Company Details Styling */
+.company-details-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  padding: 24px;
+}
+
+.detail-field {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  transition: transform 0.2s ease;
+}
+
+.detail-field.full-width {
+  grid-column: 1 / -1;
+}
+
+.field-icon {
+  margin-top: 14px;
+  color: #666;
+}
+
+.field-label {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+.field-value {
+  font-size: 1rem;
+  color: #1f2937;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.address-field {
+  padding: 20px;
+}
+
+.address-field .field-value {
+  white-space: normal;
+  line-height: 1.5;
+}
+
+/* Upload Grid Layout */
+.upload-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.upload-grid-item {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.upload-grid-item.full-width {
+  border: 1px dashed #e5e7eb;
+  padding: 32px;
+  background: #f8f9fa;
+}
+
+.upload-grid-item.half-width {
+  border: 1px dashed #e5e7eb;
+  padding: 24px;
+  background: #f8f9fa;
+}
+
+.upload-grid-bottom {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+/* Upload Container Styling */
+.upload-container {
+  display: flex;
+  gap: 24px;
+  height: 100%;
+  background-color: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  transition: all 0.2s ease;
+}
+
+.upload-preview {
+  width: 160px;
+  height: 160px;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.upload-preview.large {
+  width: 200px;
+  height: 200px;
+}
+
+.preview-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.remove-image-button {
+  position: absolute !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  background-color: rgba(0, 0, 0, 0.6) !important;
+  color: white !important;
+  font-size: 0.75rem !important;
+  padding: 4px !important;
+  min-width: unset !important;
+  border-radius: 0 !important;
+  opacity: 0;
+  transition: opacity 0.2s ease !important;
+}
+
+.upload-preview:hover .remove-image-button {
+  opacity: 1;
+}
+
+.remove-image-button:hover {
+  background-color: rgba(0, 0, 0, 0.8) !important;
+}
+
+.placeholder-image {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+}
+
+.placeholder-image svg {
+  font-size: 48px;
+}
+
+.placeholder-image.large svg {
+  font-size: 64px;
+}
+
+.upload-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.upload-content .MuiTypography-h6 {
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: #1f2937;
+  margin-bottom: 4px;
+}
+
+.upload-content .MuiTypography-body2 {
+  color: #6b7280;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.upload-button {
+  background-color: rgb(26, 32, 53) !important;
+  color: white !important;
+  margin-top: 16px !important;
+  text-transform: none !important;
+  padding: 10px 20px !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  border-radius: 6px !important;
+  align-self: flex-start;
+}
+
+.upload-button:hover {
+  background-color: rgba(26, 32, 53, 0.9) !important;
+}
+
+/* Actions Container */
+.actions-container {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  animation: fadeInUp 0.4s ease-out;
+  animation-delay: 0.3s;
+  opacity: 0;
+  animation-fill-mode: forwards;
+}
+
+.cancel-button {
+  color: #6c757d !important;
+  border: 2px solid #6c757d !important;
+  padding: 8px 24px !important;
+  font-weight: 500 !important;
+  transition: all 0.2s ease !important;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.cancel-button:hover {
+  background-color: #6c757d !important;
+  color: white !important;
+  transform: translateY(-2px);
+}
+
+.cancel-button:active {
+  transform: translateY(0);
+}
+
+.save-button {
+  background-color: rgb(26, 32, 53) !important;
+  color: white !important;
+  padding: 8px 24px !important;
+  font-weight: 500 !important;
+  transition: all 0.2s ease !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.save-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(26, 32, 53, 0.2);
+}
+
+.save-button:active {
+  transform: translateY(0);
+}
+
+.save-button.loading {
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+.save-button.loading::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  top: 50%;
+  left: 50%;
+  margin-left: -10px;
+  margin-top: -10px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.save-button.success {
+  background-color: #10B981 !important;
+  pointer-events: none;
+}
+
+.save-button.success::after {
+  content: '✓';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  animation: popIn 0.3s ease-out;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes popIn {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+  }
+  70% {
+    transform: translate(-50%, -50%) scale(1.2);
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* Responsive Styles */
+@media (max-width: 960px) {
+  .settings-container {
+    padding: 24px;
+  }
+
+  .upload-grid-bottom {
+    grid-template-columns: 1fr;
+  }
+
+  .upload-container {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 20px;
+  }
+
+  .upload-preview {
+    width: 140px;
+    height: 140px;
+  }
+
+  .upload-preview.large {
+    width: 160px;
+    height: 160px;
+  }
+
+  .remove-image-button {
+    opacity: 1;
+  }
+
+  .upload-content {
+    align-items: center;
+  }
+
+  .upload-button {
+    align-self: center;
+  }
+
+  .company-details-grid {
+    grid-template-columns: 1fr;
+    padding: 16px;
+    gap: 16px;
+  }
+
+  .detail-field {
+    padding: 14px 16px;
+  }
+
+  .address-field {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 600px) {
+  .settings-container {
+    padding: 16px;
+  }
+
+  .settings-section {
+    padding: 20px;
+  }
+
+  .section-title {
+    margin-bottom: 24px;
+  }
+
+  .upload-grid {
+    gap: 16px;
+  }
+
+  .upload-grid-item.full-width {
+    padding: 20px;
+  }
+
+  .upload-grid-item.half-width {
+    padding: 16px;
+  }
+
+  .upload-preview {
+    width: 120px;
+    height: 120px;
+  }
+
+  .upload-preview.large {
+    width: 140px;
+    height: 140px;
+  }
+
+  .placeholder-image svg {
+    font-size: 36px;
+  }
+
+  .placeholder-image.large svg {
+    font-size: 48px;
+  }
+
+  .actions-container {
+    flex-direction: column-reverse;
+    gap: 12px;
+    padding-top: 20px;
+    margin-top: 24px;
+  }
+
+  .cancel-button,
+  .save-button {
+    width: 100%;
+    padding: 12px 24px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .company-details-grid {
+    grid-template-columns: 1fr;
+    padding: 16px;
+    gap: 16px;
+  }
+}
+
+.upload-grid-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.detail-field:hover {
+  transform: translateY(-2px);
+} 

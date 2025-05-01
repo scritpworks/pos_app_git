@@ -1,0 +1,181 @@
+/* SalesHistory.css */
+
+.status-chip-completed {
+  background-color: #e6f7ee;
+  color: #0c6b3d;
+  border: 1px solid #b7ebd3;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.status-chip-refunded {
+  background-color: #fcebeb;
+  color: #b42424;
+  border: 1px solid #f8d0d0;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.status-chip-pending {
+  background-color: #fff8e6;
+  color: #996500;
+  border: 1px solid #ffebc2;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  display: inline-block;
+}
+
+/* Dialog Table Styles */
+.sale-items-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+  font-size: 0.75rem;
+}
+
+.sale-items-table th {
+  background-color: #f5f5f5;
+  padding: 6px 8px;
+  text-align: left;
+  font-weight: 600;
+  color: #333;
+  border-bottom: 1px solid #ddd;
+  font-size: 0.75rem;
+}
+
+.sale-items-table th:last-child,
+.sale-items-table td:last-child {
+  text-align: right;
+}
+
+.sale-items-table td {
+  padding: 6px 8px;
+  border-bottom: 1px solid #eee;
+  font-size: 0.75rem;
+}
+
+.sale-items-table tr:last-child td {
+  border-bottom: none;
+}
+
+.sale-summary {
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  margin-top: 12px;
+  font-size: 0.75rem;
+}
+
+.sale-summary-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  font-size: 0.75rem;
+}
+
+.sale-summary-row.total {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid #ddd;
+  font-weight: bold;
+}
+
+/* Filter Controls */
+.filter-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
+  align-items: center;
+}
+
+/* Media queries for mobile responsiveness */
+@media (max-width: 768px) {
+  .filter-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .filter-controls > * {
+    width: 100%;
+  }
+}
+
+/* Animation for hover effects */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(66, 153, 225, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(66, 153, 225, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(66, 153, 225, 0);
+  }
+}
+
+.hover-pulse:hover {
+  animation: pulse 1.5s infinite;
+}
+
+/* Auto-refresh animations */
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+.pulse-refresh {
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0.5; }
+  50% { opacity: 1; }
+  100% { opacity: 0.5; }
+}
+
+.refresh-timestamp-pulse {
+  animation: fadeInOut 2s infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+/* Fix Dialog Clickability Issues */
+.MuiDialog-root {
+  pointer-events: auto !important;
+}
+
+.MuiDialog-container {
+  pointer-events: auto !important;
+}
+
+.MuiDialog-paper {
+  pointer-events: auto !important;
+  opacity: 1 !important;
+}
+
+.MuiDialog-backdrop {
+  pointer-events: auto !important;
+}
+
+.MuiBackdrop-root {
+  z-index: -1 !important;
+} 

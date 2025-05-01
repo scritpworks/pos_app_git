@@ -1,0 +1,98 @@
+.products-container {
+  padding: 24px;
+  width: 100%;
+}
+
+.products-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.page-title {
+  font-size: 1.5rem !important;
+  font-weight: 600 !important;
+  color: rgb(26, 32, 53) !important;
+  margin-bottom: 4px !important;
+}
+
+.page-subtitle {
+  font-size: 0.875rem !important;
+  color: rgb(100, 116, 139) !important;
+}
+
+.add-product-button {
+  background-color: rgb(26, 32, 53) !important;
+  text-transform: none !important;
+  font-weight: 500 !important;
+  font-size: 0.875rem !important;
+  height: 36px !important;
+  padding: 0 16px !important;
+  border-radius: 8px !important;
+}
+
+.add-product-button:hover {
+  background-color: rgba(26, 32, 53, 0.9) !important;
+}
+
+/* Table Styles */
+.rdt_TableHead {
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+}
+
+.rdt_TableHeadRow {
+  background-color: rgb(248, 250, 252) !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+
+.rdt_TableRow {
+  border-bottom: 1px solid #f1f5f9 !important;
+}
+
+.rdt_TableCell {
+  padding: 12px !important;
+}
+
+/* Responsive Styles */
+@media (max-width: 600px) {
+  .products-container {
+    padding: 16px;
+  }
+  
+  .products-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  
+  .add-product-button {
+    width: 100%;
+  }
+}
+
+/* Snackbar custom styles */
+.snackbar {
+  margin-top: 16px;
+}
+
+/* Dialog custom styles */
+.MuiDialog-paper {
+  border-radius: 12px !important;
+}
+
+.MuiDialogTitle-root {
+  background-color: white;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.MuiDialogContent-root {
+  padding: 24px !important;
+}
+
+.MuiDialogActions-root {
+  padding: 16px 24px !important;
+  background-color: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+}
