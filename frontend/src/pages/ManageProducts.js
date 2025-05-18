@@ -24,7 +24,9 @@ import {
   Checkbox,
   Autocomplete,
   Popper,
-  OutlinedInput
+  OutlinedInput,
+  Tabs,
+  Tab
 } from '@mui/material';
 import DataTable from 'react-data-table-component';
 import styled from 'styled-components';
@@ -38,6 +40,8 @@ import ImageIcon from '@mui/icons-material/Image';
 import PrintIcon from '@mui/icons-material/Print';
 import QrCodeIcon from '@mui/icons-material/QrCode';
 import './ManageProducts.css';
+import axios from 'axios';
+import { API_ENDPOINTS, getAuthHeader } from '../apiConfig/apiConfig';
 
 // Styled components for data table
 const StyledDataTable = styled(DataTable)`
@@ -88,19 +92,6 @@ const StyledDataTable = styled(DataTable)`
     padding: 6px 12px;
   }
 `;
-
-const AVAILABLE_BRANCHES = [
-  { id: 1, name: 'Main Store' },
-  { id: 2, name: 'Branch A' },
-  { id: 3, name: 'Branch B' },
-  { id: 4, name: 'Branch C' },
-  { id: 5, name: 'Branch D' },
-  { id: 6, name: 'Downtown Store' },
-  { id: 7, name: 'Mall Branch' },
-  { id: 8, name: 'Airport Store' },
-  { id: 9, name: 'Express Branch' },
-  { id: 10, name: 'Warehouse Store' }
-];
 
 const SAMPLE_PRODUCT_IMAGES = {
   Clothing: 'https://cdn-icons-png.flaticon.com/32/2405/2405604.png',
@@ -284,17 +275,13 @@ const AddItemDialog = ({ open, onClose, title, placeholder, onSave }) => {
   );
 };
 
-const DeleteConfirmationDialog = ({ open, onClose, onConfirm, productName, category }) => {
+const DeleteConfirmationDialog = ({ open, onClose, onConfirm, name, type = 'unit' }) => {
   return (
     <Dialog
       open={open}
       onClose={onClose}
       PaperProps={{
-        sx: {
-          borderRadius: '8px',
-          maxWidth: '400px',
-          width: '100%'
-        }
+        sx: { borderRadius: '8px', maxWidth: '400px' }
       }}
     >
       <DialogTitle sx={{ 
@@ -304,52 +291,11 @@ const DeleteConfirmationDialog = ({ open, onClose, onConfirm, productName, categ
         color: '#111827',
         borderBottom: '1px solid #e5e7eb'
       }}>
-        Delete Product
+        Delete {type}
       </DialogTitle>
       <DialogContent sx={{ p: '20px' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-          <Box
-            sx={{
-              width: '64px',
-              height: '64px',
-              borderRadius: '8px',
-              backgroundColor: '#F3F4F6',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexShrink: 0,
-              border: '1px solid #E5E7EB'
-            }}
-          >
-            <img
-              src={SAMPLE_PRODUCT_IMAGES[category] || SAMPLE_PRODUCT_IMAGES.default}
-              alt=""
-              style={{
-                width: '40px',
-                height: '40px',
-                objectFit: 'contain'
-              }}
-            />
-          </Box>
-          <Box>
-            <Typography sx={{ 
-              fontSize: '15px', 
-              fontWeight: 500, 
-              color: '#111827',
-              mb: 0.5
-            }}>
-              {productName}
-            </Typography>
-            <Typography sx={{ 
-              fontSize: '13px', 
-              color: '#6B7280'
-            }}>
-              {category}
-            </Typography>
-          </Box>
-        </Box>
         <Typography sx={{ fontSize: '14px', color: '#4B5563' }}>
-          Are you sure you want to delete this product? This action cannot be undone.
+          Are you sure you want to delete "{name}"? This action cannot be undone.
         </Typography>
       </DialogContent>
       <DialogActions sx={{ 
@@ -401,222 +347,369 @@ const DeleteConfirmationDialog = ({ open, onClose, onConfirm, productName, categ
   );
 };
 
+const CategoryDialog = ({ 
+  open, 
+  onClose, 
+  categories,
+  onUpdateCategory,
+  onDeleteCategory,
+  onAddCategory,
+  setSnackbar 
+}) => {
+  const [categoryName, setCategoryName] = useState('');
+  const [editingCategory, setEditingCategory] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleSave = async () => {
+    if (!categoryName.trim()) return;
+    setLoading(true);
+    
+    try {
+      if (editingCategory) {
+        await onUpdateCategory(editingCategory.id, categoryName);
+      } else {
+        await onAddCategory(categoryName);
+      }
+      setCategoryName('');
+      setEditingCategory(null);
+      onClose();
+    } catch (error) {
+      setSnackbar({
+        open: true,
+        message: error.response?.data?.message || 'Error saving category',
+        severity: 'error'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Dialog 
+      open={open} 
+      onClose={onClose}
+      maxWidth="sm"
+      fullWidth
+      PaperProps={{
+        sx: { borderRadius: '12px' }
+      }}
+    >
+      <DialogTitle sx={{ 
+        p: '20px 24px',
+        fontSize: '18px',
+        fontWeight: 600,
+        borderBottom: '1px solid #e5e7eb'
+      }}>
+        Manage Categories
+      </DialogTitle>
+      <DialogContent sx={{ p: '24px' }}>
+        {/* Add Category Form */}
+        <Box sx={{ mb: 3 }}>
+          <TextField
+            fullWidth
+            size="small"
+            placeholder="Enter category name"
+            value={categoryName}
+            onChange={(e) => setCategoryName(e.target.value)}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                borderRadius: '8px',
+              }
+            }}
+          />
+        </Box>
+
+        {/* Categories List */}
+        <Box sx={{ maxHeight: '300px', overflow: 'auto' }}>
+          {categories.map((category) => (
+            <Box
+              key={category.id}
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                p: 1.5,
+                borderBottom: '1px solid #e5e7eb',
+                '&:last-child': {
+                  borderBottom: 'none'
+                }
+              }}
+            >
+              <Typography sx={{ fontSize: '14px' }}>
+                {category.name}
+              </Typography>
+              <Box sx={{ display: 'flex', gap: 1 }}>
+                <IconButton
+                  size="small"
+                  onClick={() => {
+                    setEditingCategory(category);
+                    setCategoryName(category.name);
+                  }}
+                >
+                  <EditIcon sx={{ fontSize: 18 }} />
+                </IconButton>
+                <IconButton
+                  size="small"
+                  onClick={() => onDeleteCategory(category.id)}
+                >
+                  <DeleteIcon sx={{ fontSize: 18 }} />
+                </IconButton>
+              </Box>
+            </Box>
+          ))}
+        </Box>
+      </DialogContent>
+      <DialogActions sx={{ 
+        p: '16px 24px',
+        borderTop: '1px solid #e5e7eb'
+      }}>
+        <Button
+          onClick={() => {
+            setCategoryName('');
+            setEditingCategory(null);
+            onClose();
+          }}
+          variant="outlined"
+          sx={{
+            borderRadius: '8px',
+            textTransform: 'none'
+          }}
+        >
+          Cancel
+        </Button>
+        <Button
+          onClick={handleSave}
+          variant="contained"
+          disabled={!categoryName.trim() || loading}
+          sx={{
+            borderRadius: '8px',
+            textTransform: 'none'
+          }}
+        >
+          {loading ? (
+            <CircularProgress size={24} />
+          ) : editingCategory ? (
+            'Update Category'
+          ) : (
+            'Add Category'
+          )}
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
+const UnitDialog = ({ 
+  open, 
+  onClose, 
+  units = [], 
+  onAddUnit,
+  onUpdateUnit,
+  onDeleteUnit,
+  setSnackbar 
+}) => {
+  const [unitName, setUnitName] = useState('');
+  const [editingUnit, setEditingUnit] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleSave = async () => {
+    if (!unitName.trim()) return;
+    
+    setLoading(true);
+    
+    try {
+      if (editingUnit) {
+        // Update existing unit
+        await onUpdateUnit(editingUnit.id, unitName);
+        setEditingUnit(null);
+      } else {
+        // Add new unit
+        await onAddUnit(unitName);
+      }
+      setUnitName('');
+    } catch (error) {
+      console.error('Error saving unit:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Dialog 
+      open={open} 
+      onClose={onClose}
+      maxWidth="sm"
+      fullWidth
+      PaperProps={{
+        sx: { borderRadius: '12px' }
+      }}
+    >
+      <DialogTitle sx={{ 
+        p: '20px 24px',
+        fontSize: '18px',
+        fontWeight: 600,
+        borderBottom: '1px solid #e5e7eb'
+      }}>
+        Manage Units
+      </DialogTitle>
+      <DialogContent sx={{ p: '24px' }}>
+        {/* Add/Edit Unit Form */}
+        <Box sx={{ mb: 3 }}>
+          <TextField
+            fullWidth
+            size="small"
+            placeholder={editingUnit ? "Edit unit name" : "Enter unit name (e.g., piece, kg, meter)"}
+            value={unitName}
+            onChange={(e) => setUnitName(e.target.value)}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                borderRadius: '8px',
+              }
+            }}
+          />
+        </Box>
+
+        {/* Units List */}
+        <Box sx={{ maxHeight: '300px', overflow: 'auto' }}>
+          {units && units.length > 0 ? (
+            units.map((unit) => (
+              <Box
+                key={unit.id}
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  p: 1.5,
+                  borderBottom: '1px solid #e5e7eb',
+                  '&:last-child': {
+                    borderBottom: 'none'
+                  }
+                }}
+              >
+                <Typography sx={{ fontSize: '14px' }}>
+                  {unit.name}
+                </Typography>
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                  <IconButton
+                    size="small"
+                    onClick={() => {
+                      setEditingUnit(unit);
+                      setUnitName(unit.name);
+                    }}
+                  >
+                    <EditIcon sx={{ fontSize: 18 }} />
+                  </IconButton>
+                  <IconButton
+                    size="small"
+                    onClick={() => onDeleteUnit(unit.id)}
+                  >
+                    <DeleteIcon sx={{ fontSize: 18 }} />
+                  </IconButton>
+                </Box>
+              </Box>
+            ))
+          ) : (
+            <Box sx={{ p: 2, textAlign: 'center' }}>
+              <Typography sx={{ color: '#6B7280', fontSize: '14px' }}>
+                No units available
+              </Typography>
+            </Box>
+          )}
+        </Box>
+      </DialogContent>
+      <DialogActions sx={{ 
+        p: '16px 24px',
+        borderTop: '1px solid #e5e7eb'
+      }}>
+        <Button
+          onClick={() => {
+            setUnitName('');
+            setEditingUnit(null);
+            onClose();
+          }}
+          variant="outlined"
+          sx={{
+            borderRadius: '8px',
+            textTransform: 'none'
+          }}
+        >
+          Cancel
+        </Button>
+        <Button
+          onClick={handleSave}
+          variant="contained"
+          disabled={!unitName.trim() || loading}
+          sx={{
+            borderRadius: '8px',
+            textTransform: 'none'
+          }}
+        >
+          {loading ? (
+            <CircularProgress size={24} />
+          ) : editingUnit ? (
+            'Update Unit'
+          ) : (
+            'Add Unit'
+          )}
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
 const ManageProducts = () => {
   // State management
-  const [products, setProducts] = useState([
-    {
-      id: 1,
-      barcode: '890123456789',
-      name: 'Premium Cotton T-Shirt',
-      category: 'Clothing',
-      branch: 'Main Store',
-      stock: 150,
-      price: 29.99,
-      status: 'Active'
-    },
-    {
-      id: 2,
-      barcode: '890123456790',
-      name: 'Nike Air Max Running Shoes',
-      category: 'Sports',
-      branch: 'Sports Center',
-      stock: 75,
-      price: 129.99,
-      status: 'Active'
-    },
-    {
-      id: 3,
-      barcode: '890123456791',
-      name: 'Leather Crossbody Bag',
-      category: 'Accessories',
-      branch: 'Fashion Outlet',
-      stock: 45,
-      price: 89.99,
-      status: 'Active'
-    },
-    {
-      id: 4,
-      barcode: '890123456792',
-      name: 'Smart LED TV 55"',
-      category: 'Home Appliances',
-      branch: 'Electronics Hub',
-      stock: 20,
-      price: 699.99,
-      status: 'Active'
-    },
-    {
-      id: 5,
-      barcode: '890123456793',
-      name: 'Rolex Submariner Watch',
-      category: 'Watches',
-      branch: 'Luxury Store',
-      stock: 5,
-      price: 8999.99,
-      status: 'Active'
-    },
-    {
-      id: 6,
-      barcode: '890123456794',
-      name: 'Denim Slim Fit Jeans',
-      category: 'Clothing',
-      branch: 'Fashion Outlet',
-      stock: 100,
-      price: 59.99,
-      status: 'Active'
-    },
-    {
-      id: 7,
-      barcode: '890123456795',
-      name: 'Adidas Training Set',
-      category: 'Sports',
-      branch: 'Sports Center',
-      stock: 30,
-      price: 89.99,
-      status: 'Active'
-    },
-    {
-      id: 8,
-      barcode: '890123456796',
-      name: 'Sterling Silver Necklace',
-      category: 'Accessories',
-      branch: 'Jewelry Store',
-      stock: 25,
-      price: 149.99,
-      status: 'Active'
-    },
-    {
-      id: 9,
-      barcode: '890123456797',
-      name: 'Microwave Oven',
-      category: 'Home Appliances',
-      branch: 'Home Store',
-      stock: 15,
-      price: 199.99,
-      status: 'Active'
-    },
-    {
-      id: 10,
-      barcode: '890123456798',
-      name: 'Casio G-Shock Watch',
-      category: 'Watches',
-      branch: 'Main Store',
-      stock: 40,
-      price: 129.99,
-      status: 'Active'
-    },
-    {
-      id: 11,
-      barcode: '890123456799',
-      name: 'Summer Floral Dress',
-      category: 'Clothing',
-      branch: 'Fashion Outlet',
-      stock: 60,
-      price: 79.99,
-      status: 'Active'
-    },
-    {
-      id: 12,
-      barcode: '890123456800',
-      name: 'Yoga Mat Premium',
-      category: 'Sports',
-      branch: 'Sports Center',
-      stock: 50,
-      price: 39.99,
-      status: 'Active'
-    },
-    {
-      id: 13,
-      barcode: '890123456801',
-      name: 'Designer Sunglasses',
-      category: 'Accessories',
-      branch: 'Fashion Outlet',
-      stock: 35,
-      price: 159.99,
-      status: 'Active'
-    },
-    {
-      id: 14,
-      barcode: '890123456802',
-      name: 'Air Conditioner',
-      category: 'Home Appliances',
-      branch: 'Electronics Hub',
-      stock: 10,
-      price: 899.99,
-      status: 'Active'
-    },
-    {
-      id: 15,
-      barcode: '890123456803',
-      name: 'Apple Watch Series 7',
-      category: 'Watches',
-      branch: 'Electronics Hub',
-      stock: 25,
-      price: 399.99,
-      status: 'Active'
-    },
-    {
-      id: 16,
-      barcode: '890123456804',
-      name: 'Leather Jacket',
-      category: 'Clothing',
-      branch: 'Fashion Outlet',
-      stock: 20,
-      price: 199.99,
-      status: 'Active'
-    },
-    {
-      id: 17,
-      barcode: '890123456805',
-      name: 'Basketball',
-      category: 'Sports',
-      branch: 'Sports Center',
-      stock: 45,
-      price: 29.99,
-      status: 'Active'
-    },
-    {
-      id: 18,
-      barcode: '890123456806',
-      name: 'Leather Wallet',
-      category: 'Accessories',
-      branch: 'Main Store',
-      stock: 75,
-      price: 49.99,
-      status: 'Active'
-    },
-    {
-      id: 19,
-      barcode: '890123456807',
-      name: 'Coffee Maker',
-      category: 'Home Appliances',
-      branch: 'Home Store',
-      stock: 30,
-      price: 79.99,
-      status: 'Active'
-    },
-    {
-      id: 20,
-      barcode: '890123456808',
-      name: 'Fossil Chronograph Watch',
-      category: 'Watches',
-      branch: 'Fashion Outlet',
-      stock: 15,
-      price: 199.99,
-      status: 'Active'
-    }
-  ]);
-
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [branchFilter, setBranchFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [units, setUnits] = useState([]);
+  const [unitsLoading, setUnitsLoading] = useState(false);
+  const [branches, setBranches] = useState([]);
+  const [selectedBranches, setSelectedBranches] = useState([]);
+  const [branchPrices, setBranchPrices] = useState([]);
+  const [selectedPriceGroup, setSelectedPriceGroup] = useState('retail');
+  const [defaultPrices, setDefaultPrices] = useState({
+    retail: 0,
+    wholesale: 0,
+    special: 0
+  });
   
   // Dialog states
+  const [openProductDialog, setOpenProductDialog] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
-  const [dialogMode, setDialogMode] = useState('add'); // 'add' or 'edit'
+  const [dialogMode, setDialogMode] = useState('add');
   const [selectedProduct, setSelectedProduct] = useState(null);
-  
+  const [addCategoryDialog, setAddCategoryDialog] = useState(false);
+  const [addUnitDialog, setAddUnitDialog] = useState(false);
+  const [deleteDialog, setDeleteDialog] = useState({ open: false, product: null });
+  const [deleteConfirmation, setDeleteConfirmation] = useState({
+    open: false,
+    unitId: null,
+    unitName: ''
+  });
+  const [barcodeDialog, setBarcodeDialog] = useState({ open: false, product: null });
+
+  // Form state - single source of truth
+  const [formData, setFormData] = useState({
+    id: '',
+    name: '',
+    description: '',
+    productType: '', // Changed from product_type
+    category: '', // This will hold the category name
+    pricingUnit: '', // This will hold the unit name
+    barcode: '',
+    image: '',
+    initialStock: '0',
+    alertQuantity: '0',
+    purchase_price: '0',
+    status: 'Active',
+    branchAvailability: []
+  });
+
   // Snackbar state
   const [snackbar, setSnackbar] = useState({
     open: false,
@@ -624,62 +717,99 @@ const ManageProducts = () => {
     severity: 'success'
   });
 
-  // Form state
-  const [formData, setFormData] = useState({
-    barcode: '',
-    name: '',
-    category: '',
-    branchAvailability: [],  // Array of branches where product is available
-    stock: '',
-    price: '',
-    status: 'Active',
-    productType: '',
-    pricingUnit: '',
-    alertQuantity: '',
-  });
-
-  // New state for barcode dialog
-  const [barcodeDialog, setBarcodeDialog] = useState({ open: false, product: null });
-
-  const [categories, setCategories] = useState([
-    'Electronics',
-    'Clothing',
-    'Food'
-  ]);
-
-  const [pricingUnits, setPricingUnits] = useState([
-    'piece',
-    'kg',
-    'meter',
-    'liter'
-  ]);
-
-  const [addCategoryDialog, setAddCategoryDialog] = useState(false);
-  const [addUnitDialog, setAddUnitDialog] = useState(false);
-
-  // Add new state for delete confirmation
-  const [deleteDialog, setDeleteDialog] = useState({ open: false, product: null });
+  // Price-related states
+  const [priceTypes, setPriceTypes] = useState([]);
+  const [productPrices, setProductPrices] = useState({});
 
   // Handlers
-  const handleOpenDialog = (mode, product = null) => {
+  const handleOpenDialog = async (mode, product = null) => {
     setDialogMode(mode);
     setSelectedProduct(product);
+    
     if (mode === 'edit' && product) {
-      setFormData({ ...product });
+      try {
+        const response = await axios.get(`${API_ENDPOINTS.products}/${product.id}`, getAuthHeader());
+        if (response.data.success) {
+          const productData = response.data.data;
+          
+          // Set form data
+          setFormData({
+            id: productData.id,
+            name: productData.name,
+            description: productData.description || '',
+            productType: productData.product_type,
+            category: productData.category_name,
+            pricingUnit: productData.unit_name,
+            barcode: productData.barcode || '',
+            image: productData.image || '',
+            initialStock: productData.stock_quantity?.toString() || '0',
+            alertQuantity: productData.alert_quantity?.toString() || '0',
+            purchase_price: productData.purchase_price?.toString() || '0',
+            status: productData.status || 'Active',
+            branchAvailability: productData.branch_products?.map(bp => bp.branch_name) || []
+          });
+
+          // Set branch prices
+          const newProductPrices = {};
+          
+          // Initialize price types from the priceTypes state
+          priceTypes.forEach(pt => {
+            newProductPrices[pt.name.toLowerCase()] = { all: 0, byBranch: {} };
+          });
+
+          // Process branch prices
+          Object.entries(productData.branch_prices || {}).forEach(([branchId, prices]) => {
+            prices.forEach(price => {
+              // Find price type name from ID
+              const priceType = priceTypes.find(pt => pt.id === price.price_type_id);
+              if (priceType) {
+                const priceTypeName = priceType.name.toLowerCase();
+                if (newProductPrices[priceTypeName]) {
+                  newProductPrices[priceTypeName].byBranch[branchId] = price.price;
+                }
+              }
+            });
+          });
+
+          setProductPrices(newProductPrices);
+
+          // Set selected branches
+          const selectedBranchIds = productData.branch_products?.map(bp => bp.branch_id) || [];
+          setSelectedBranches(selectedBranchIds);
+        }
+      } catch (error) {
+        console.error('Error fetching product details:', error);
+        setSnackbar({
+          open: true,
+          message: error.response?.data?.message || 'Error fetching product details',
+          severity: 'error'
+        });
+      }
     } else {
+      // Reset form for new product
       setFormData({
-        barcode: '',
+        id: '',
         name: '',
-        category: '',
-        branchAvailability: [],
-        stock: '',
-        price: '',
-        status: 'Active',
+        description: '',
         productType: '',
+        category: '',
         pricingUnit: '',
-        alertQuantity: '',
+        barcode: '',
+        image: '',
+        initialStock: '0',
+        alertQuantity: '0',
+        purchase_price: '0',
+        status: 'Active',
+        branchAvailability: []
       });
+      setProductPrices({
+        retail: { all: 0, byBranch: {} },
+        wholesale: { all: 0, byBranch: {} },
+        special: { all: 0, byBranch: {} }
+      });
+      setSelectedBranches([]);
     }
+    
     setOpenDialog(true);
   };
 
@@ -762,7 +892,7 @@ const ManageProducts = () => {
         }}>
           <Box
             component="img"
-            src={SAMPLE_PRODUCT_IMAGES[row.category] || SAMPLE_PRODUCT_IMAGES.default}
+            src={row.image || SAMPLE_PRODUCT_IMAGES.default}
             alt=""
             sx={{
               width: 24,
@@ -794,7 +924,7 @@ const ManageProducts = () => {
     },
     {
       name: 'Category',
-      selector: row => row.category,
+      selector: row => row.category_name,
       sortable: true,
       cell: row => (
         <Box sx={{ 
@@ -803,7 +933,7 @@ const ManageProducts = () => {
           gap: 1
         }}>
           <Chip
-            label={row.category}
+            label={row.category_name}
             size="small"
             sx={{ 
               fontWeight: 500,
@@ -819,36 +949,33 @@ const ManageProducts = () => {
       width: '150px',
     },
     {
-      name: 'Branch',
-      selector: row => row.branch,
+      name: 'Unit',
+      selector: row => row.unit_name,
       sortable: true,
       cell: row => (
         <Typography sx={{ 
           fontSize: '0.75rem', 
-          color: '#111827',
-          maxWidth: '150px',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          whiteSpace: 'nowrap'
+          fontWeight: 500, 
+          color: '#111827'
         }}>
-          {row.branch}
+          {row.unit_name}
         </Typography>
       ),
-      width: '150px',
+      width: '100px',
     },
     {
       name: 'Stock',
-      selector: row => row.stock,
+      selector: row => row.stock_quantity,
       sortable: true,
       cell: row => (
         <Chip
-          label={row.stock}
+          label={row.stock_quantity}
           size="small"
           sx={{
             fontSize: '0.7rem',
             height: '20px',
-            backgroundColor: row.stock > 20 ? 'rgba(46, 204, 113, 0.1)' : row.stock > 10 ? 'rgba(246, 194, 62, 0.1)' : 'rgba(235, 87, 87, 0.1)',
-            color: row.stock > 20 ? '#2ecc71' : row.stock > 10 ? '#f6c23e' : '#eb5757',
+            backgroundColor: row.stock_quantity > row.alert_quantity ? 'rgba(46, 204, 113, 0.1)' : 'rgba(235, 87, 87, 0.1)',
+            color: row.stock_quantity > row.alert_quantity ? '#2ecc71' : '#eb5757',
             fontWeight: 500,
             borderRadius: '4px'
           }}
@@ -857,8 +984,8 @@ const ManageProducts = () => {
       width: '100px',
     },
     {
-      name: 'Price',
-      selector: row => row.price,
+      name: 'Purchase Price',
+      selector: row => row.purchase_price,
       sortable: true,
       cell: row => (
         <Typography sx={{ 
@@ -866,10 +993,10 @@ const ManageProducts = () => {
           fontWeight: 500, 
           color: '#111827'
         }}>
-          ${row.price.toFixed(2)}
+          GH₵{parseFloat(row.purchase_price).toFixed(2)}
         </Typography>
       ),
-      width: '100px',
+      width: '120px',
     },
     {
       name: 'Status',
@@ -895,39 +1022,35 @@ const ManageProducts = () => {
       name: 'Actions',
       cell: row => (
         <Box sx={{ display: 'flex', gap: 1 }}>
-          <Tooltip title="Edit Product" arrow placement="top">
-            <IconButton 
-              size="small" 
-              onClick={() => handleOpenDialog('edit', row)}
-              sx={{ 
-                padding: '2px',
-                '&:hover': {
-                  backgroundColor: 'rgba(0, 0, 0, 0.04)'
-                }
-              }}
-            >
-              <EditIcon sx={{ fontSize: 14, color: '#6B7280' }} />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Delete Product" arrow placement="top">
-            <IconButton 
-              size="small" 
-              onClick={() => handleDeleteProduct(row)}
-              sx={{ 
-                padding: '2px',
-                '&:hover': {
-                  backgroundColor: 'rgba(239, 68, 68, 0.04)'
-                }
-              }}
-            >
-              <DeleteIcon sx={{ fontSize: 14, color: '#EF4444' }} />
-            </IconButton>
-          </Tooltip>
+          <IconButton 
+            size="small"
+            onClick={() => handleOpenDialog('edit', row)}
+            sx={{ 
+              color: 'primary.main',
+              '&:hover': {
+                backgroundColor: 'rgba(25, 118, 210, 0.04)'
+              }
+            }}
+          >
+            <EditIcon fontSize="small" />
+          </IconButton>
+          <IconButton 
+            size="small"
+            onClick={() => handleDeleteProduct(row)}
+            sx={{ 
+              color: 'error.main',
+              '&:hover': {
+                backgroundColor: 'rgba(211, 47, 47, 0.04)'
+              }
+            }}
+          >
+            <DeleteIcon fontSize="small" />
+          </IconButton>
         </Box>
       ),
-      width: '100px',
-      right: true,
-    },
+      width: '120px',
+      sortable: false
+    }
   ];
 
   // Form handlers
@@ -939,42 +1062,146 @@ const ManageProducts = () => {
     }));
   };
 
-  const handleSaveProduct = () => {
-    setLoading(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      if (dialogMode === 'add') {
-        const newProduct = {
-          id: products.length + 1,
-          ...formData
-        };
-        setProducts(prev => [...prev, newProduct]);
-        setSnackbar({
-          open: true,
-          message: 'Product added successfully',
-          severity: 'success'
-        });
-      } else {
-        setProducts(prev => 
-          prev.map(p => p.id === selectedProduct.id ? { ...p, ...formData } : p)
-        );
-        setSnackbar({
-          open: true,
-          message: 'Product updated successfully',
-          severity: 'success'
-        });
+  const handlePriceChange = (priceType, branchId, value) => {
+    setProductPrices(prev => ({
+      ...prev,
+      [priceType]: {
+        ...prev[priceType],
+        ...(branchId === 'all' 
+          ? { all: value }
+          : { 
+              byBranch: {
+                ...prev[priceType].byBranch,
+                [branchId]: value
+              }
+            }
+        )
       }
-      
-      setLoading(false);
-      handleCloseDialog();
-    }, 1000);
+    }));
+  };
+
+  const handleApplyDefaultPrice = () => {
+    const defaultPrice = defaultPrices[selectedPriceGroup];
+    const branchPrices = {};
+    
+    formData.branchAvailability?.forEach(branchName => {
+      const branch = branches.find(b => b.name === branchName);
+      if (branch) {
+        branchPrices[branch.id] = defaultPrice;
+      }
+    });
+
+    setProductPrices(prev => ({
+      ...prev,
+      [selectedPriceGroup]: {
+        ...prev[selectedPriceGroup],
+        byBranch: branchPrices
+      }
+    }));
+  };
+
+  // Update the handleSaveProduct function to use formData
+  const handleSaveProduct = async () => {
+    try {
+      // First, get the category and unit IDs
+      const selectedCategory = categories.find(c => c.name === formData.category);
+      const selectedUnit = units.find(u => u.name === formData.pricingUnit);
+
+      // Prepare branch prices from productPrices state
+      const branchPricesArray = [];
+      formData.branchAvailability.forEach(branchName => {
+        const branch = branches.find(b => b.name === branchName);
+        if (!branch) return;
+
+        // Add prices for each price type
+        Object.entries(productPrices).forEach(([priceTypeName, priceData]) => {
+          // Find the price type ID from the priceTypes array
+          const priceType = priceTypes.find(pt => pt.name.toLowerCase() === priceTypeName);
+          if (!priceType) return;
+
+          const price = priceData.byBranch[branch.id] || priceData.all || 0;
+          branchPricesArray.push({
+            branch_id: branch.id,
+            price_type_id: priceType.id,  // Send the ID instead of name
+            price: parseFloat(price)
+          });
+        });
+      });
+
+      // Prepare the data exactly as the backend expects it
+      const productData = {
+        name: formData.name,
+        description: formData.description || '',
+        product_type: formData.productType,
+        category_id: selectedCategory?.id,
+        unit_id: selectedUnit?.id,
+        barcode: formData.barcode || '',
+        image: formData.image || '',
+        initial_stock: parseInt(formData.initialStock) || 0,
+        alert_quantity: parseInt(formData.alertQuantity) || 0,
+        purchase_price: parseFloat(formData.purchase_price) || 0,
+        branch_prices: branchPricesArray,
+        status: formData.status || 'Active'
+      };
+
+      // Validate required fields
+      if (!productData.name || !productData.product_type || !productData.category_id || !productData.unit_id) {
+        throw new Error('Please fill all required fields (Name, Product Type, Category, and Unit)');
+      }
+
+      let response;
+      if (formData.id) {
+        response = await axios.put(`${API_ENDPOINTS.products}/${formData.id}`, productData, getAuthHeader());
+      } else {
+        response = await axios.post(API_ENDPOINTS.products, productData, getAuthHeader());
+      }
+
+      if (response.data.success) {
+        setSnackbar({
+          open: true,
+          message: `Product ${formData.id ? 'updated' : 'created'} successfully`,
+          severity: 'success'
+        });
+        setOpenDialog(false);
+        fetchProducts();
+        resetForm();
+      }
+    } catch (error) {
+      console.error('Error saving product:', error);
+      setSnackbar({
+        open: true,
+        message: error.response?.data?.message || error.message || `Error ${formData.id ? 'updating' : 'creating'} product`,
+        severity: 'error'
+      });
+    }
+  };
+
+  // Update resetForm to work with formData
+  const resetForm = () => {
+    setFormData({
+      id: '',
+      name: '',
+      description: '',
+      productType: '', // Changed from product_type
+      category: '', // This will hold the category name
+      pricingUnit: '', // This will hold the unit name
+      barcode: '',
+      image: '',
+      initialStock: '0',
+      alertQuantity: '0',
+      purchase_price: '0',
+      status: 'Active',
+      branchAvailability: []
+    });
+    setBranchPrices([]);
+    setSelectedBranches([]);
   };
 
   const handleDeleteProduct = (product) => {
     setDeleteDialog({ open: true, product });
   };
 
+  // Add handleConfirmDelete function here
   const handleConfirmDelete = () => {
     setLoading(true);
     
@@ -989,6 +1216,585 @@ const ManageProducts = () => {
       setLoading(false);
       setDeleteDialog({ open: false, product: null });
     }, 1000);
+  };
+
+  // Add these new category management functions
+  const handleAddCategory = async (categoryName) => {
+    try {
+      await axios.post(
+        API_ENDPOINTS.categories,
+        { name: categoryName },
+        getAuthHeader()
+      );
+      fetchCategories();
+      setSnackbar({
+        open: true,
+        message: 'Category added successfully',
+        severity: 'success'
+      });
+    } catch (error) {
+      setSnackbar({
+        open: true,
+        message: error.response?.data?.message || 'Error adding category',
+        severity: 'error'
+      });
+      throw error;
+    }
+  };
+
+  const handleUpdateCategory = async (categoryId, newName) => {
+    try {
+      await axios.put(
+        API_ENDPOINTS.categoryById(categoryId),
+        { name: newName },
+        getAuthHeader()
+      );
+      fetchCategories();
+      setSnackbar({
+        open: true,
+        message: 'Category updated successfully',
+        severity: 'success'
+      });
+    } catch (error) {
+      setSnackbar({
+        open: true,
+        message: error.response?.data?.message || 'Error updating category',
+        severity: 'error'
+      });
+      throw error;
+    }
+  };
+
+  const handleDeleteCategory = async (categoryId) => {
+    try {
+      await axios.delete(
+        API_ENDPOINTS.categoryById(categoryId),
+        getAuthHeader()
+      );
+      fetchCategories();
+      setSnackbar({
+        open: true,
+        message: 'Category deleted successfully',
+        severity: 'success'
+      });
+    } catch (error) {
+      setSnackbar({
+        open: true,
+        message: error.response?.data?.message || 'Error deleting category',
+        severity: 'error'
+      });
+      throw error;
+    }
+  };
+
+  // Add this function to fetch categories
+  const fetchCategories = async () => {
+    try {
+      const response = await axios.get(API_ENDPOINTS.categories, getAuthHeader());
+      setCategories(response.data);
+    } catch (error) {
+      setSnackbar({
+        open: true,
+        message: error.response?.data?.message || 'Error fetching categories',
+        severity: 'error'
+      });
+    }
+  };
+
+  // Update the fetchUnits function
+  const fetchUnits = async () => {
+    try {
+      const response = await axios.get(API_ENDPOINTS.units, getAuthHeader());
+      
+      if (response.data.success) {
+        setUnits(response.data.data || []);
+      } else {
+        setSnackbar({
+          open: true,
+          message: response.data.message || 'Failed to fetch units',
+          severity: 'error'
+        });
+        setUnits([]);
+      }
+    } catch (error) {
+      console.error('Error fetching units:', error);
+      setSnackbar({
+        open: true,
+        message: error.response?.data?.message || 'Error fetching units',
+        severity: 'error'
+      });
+      setUnits([]);
+    }
+  };
+
+  // Add this function to fetch branches
+  const fetchBranches = async () => {
+    try {
+      const response = await axios.get(API_ENDPOINTS.branches, getAuthHeader());
+      if (response.data) {
+        setBranches(response.data);
+      }
+    } catch (error) {
+      setSnackbar({
+        open: true,
+        message: error.response?.data?.message || 'Error fetching branches',
+        severity: 'error'
+      });
+    }
+  };
+
+  // Add function to fetch price types
+  const fetchPriceTypes = async () => {
+    try {
+      const response = await axios.get(API_ENDPOINTS.priceTypes, getAuthHeader());
+      if (response.data.success) {
+        setPriceTypes(response.data.data);
+      }
+    } catch (error) {
+      console.error('Error fetching price types:', error);
+      setSnackbar({
+        open: true,
+        message: error.response?.data?.message || 'Error fetching price types',
+        severity: 'error'
+      });
+    }
+  };
+
+  // Update the fetchProducts function
+  const fetchProducts = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(API_ENDPOINTS.products, getAuthHeader());
+      
+      if (response.data.success) {
+        // Map the response data to match our table structure
+        const formattedProducts = response.data.data.map(product => ({
+          id: product.id,
+          barcode: product.barcode || '',
+          name: product.name,
+          category_name: product.category_name,
+          unit_name: product.unit_name,
+          stock_quantity: product.stock_quantity,
+          purchase_price: product.purchase_price,
+          status: product.status,
+          // Include other fields that might be needed for editing
+          description: product.description,
+          product_type: product.product_type,
+          category_id: product.category_id,
+          unit_id: product.unit_id,
+          alert_quantity: product.alert_quantity,
+          image: product.image
+        }));
+        
+        setProducts(formattedProducts);
+      } else {
+        setSnackbar({
+          open: true,
+          message: response.data.message || 'Failed to fetch products',
+          severity: 'error'
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      setSnackbar({
+        open: true,
+        message: error.response?.data?.message || 'Error fetching products',
+        severity: 'error'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Make sure to call fetchProducts in useEffect
+  useEffect(() => {
+    fetchProducts();
+    fetchCategories();
+    fetchUnits();
+    fetchBranches();
+    fetchPriceTypes();
+  }, []);
+
+  // Add unit management functions
+  const handleAddUnit = async (unitName) => {
+    try {
+      const response = await axios.post(
+        API_ENDPOINTS.units,
+        { name: unitName },
+        getAuthHeader()
+      );
+      
+      if (response.data.success) {
+        // Fetch units after successful addition
+        await fetchUnits();
+        
+        setSnackbar({
+          open: true,
+          message: 'Unit added successfully',
+          severity: 'success'
+        });
+        
+        return true;
+      } else {
+        throw new Error(response.data.message || 'Failed to add unit');
+      }
+    } catch (error) {
+      setSnackbar({
+        open: true,
+        message: error.response?.data?.message || error.message || 'Error adding unit',
+        severity: 'error'
+      });
+      return false;
+    }
+  };
+
+  const handleUpdateUnit = async (unitId, newName) => {
+    try {
+      const response = await axios.put(
+        API_ENDPOINTS.unitById(unitId),
+        { name: newName },
+        getAuthHeader()
+      );
+      
+      if (response.data.success) {
+        // Refresh the units list
+        await fetchUnits();
+        
+        setSnackbar({
+          open: true,
+          message: 'Unit updated successfully',
+          severity: 'success'
+        });
+        
+        return true;
+      } else {
+        throw new Error(response.data.message || 'Failed to update unit');
+      }
+    } catch (error) {
+      setSnackbar({
+        open: true,
+        message: error.response?.data?.message || error.message || 'Error updating unit',
+        severity: 'error'
+      });
+      return false;
+    }
+  };
+
+  // Update the handleDeleteUnit function to first show confirmation
+  const handleDeleteUnit = async (unitId) => {
+    // Find the unit name for the confirmation message
+    const unitToDelete = units.find(unit => unit.id === unitId);
+    if (!unitToDelete) return;
+    
+    // Show confirmation dialog
+    setDeleteConfirmation({
+      open: true,
+      unitId: unitId,
+      unitName: unitToDelete.name
+    });
+  };
+
+  // Add a function to handle the actual deletion after confirmation
+  const confirmDeleteUnit = async () => {
+    const unitId = deleteConfirmation.unitId;
+    
+    try {
+      const response = await axios.delete(
+        API_ENDPOINTS.unitById(unitId),
+        getAuthHeader()
+      );
+      
+      if (response.data.success) {
+        // Refresh the units list
+        await fetchUnits();
+        
+        setSnackbar({
+          open: true,
+          message: 'Unit deleted successfully',
+          severity: 'success'
+        });
+      } else {
+        throw new Error(response.data.message || 'Failed to delete unit');
+      }
+    } catch (error) {
+      setSnackbar({
+        open: true,
+        message: error.response?.data?.message || error.message || 'Error deleting unit',
+        severity: 'error'
+      });
+    } finally {
+      // Close the confirmation dialog
+      setDeleteConfirmation({
+        open: false,
+        unitId: null,
+        unitName: ''
+      });
+    }
+  };
+
+  // Add this component for the pricing section
+  const PricingSection = () => {
+    return (
+      <Box sx={{ mt: 3 }}>
+        <Typography sx={{ 
+          fontSize: '14px', 
+          fontWeight: 600, 
+          color: '#111827',
+          mb: 2 
+        }}>
+          Pricing Configuration
+        </Typography>
+
+        {/* Price Group Selection */}
+        <Box sx={{ mb: 3 }}>
+          <Typography sx={{ fontSize: '13px', color: '#6B7280', mb: 1 }}>
+            Select Price Group
+          </Typography>
+          <Box sx={{ 
+            display: 'flex', 
+            gap: 1,
+            flexWrap: 'wrap'
+          }}>
+            {priceTypes.map((priceType) => (
+              <Chip
+                key={priceType.id}
+                label={priceType.name}
+                onClick={() => setSelectedPriceGroup(priceType.name.toLowerCase())}
+                sx={{
+                  borderRadius: '6px',
+                  fontSize: '13px',
+                  fontWeight: 500,
+                  cursor: 'pointer',
+                  backgroundColor: selectedPriceGroup === priceType.name.toLowerCase() 
+                    ? '#2563EB'
+                    : '#F3F4F6',
+                  color: selectedPriceGroup === priceType.name.toLowerCase() 
+                    ? 'white'
+                    : '#374151',
+                  '&:hover': {
+                    backgroundColor: selectedPriceGroup === priceType.name.toLowerCase() 
+                      ? '#2563EB'
+                      : '#E5E7EB'
+                  }
+                }}
+              />
+            ))}
+          </Box>
+        </Box>
+
+        {/* Default Price Setting */}
+        <Box sx={{ mb: 3 }}>
+          <Box sx={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'space-between',
+            mb: 1
+          }}>
+            <Typography sx={{ fontSize: '13px', color: '#6B7280' }}>
+              Default Price for {selectedPriceGroup.charAt(0).toUpperCase() + selectedPriceGroup.slice(1)}
+            </Typography>
+            <Button
+              size="small"
+              onClick={handleApplyDefaultPrice}
+              sx={{ 
+                fontSize: '12px',
+                textTransform: 'none',
+                color: '#2563EB',
+                '&:hover': {
+                  backgroundColor: 'rgba(37, 99, 235, 0.04)'
+                }
+              }}
+            >
+              Apply to All Branches
+            </Button>
+          </Box>
+          <TextField
+            fullWidth
+            type="number"
+            value={defaultPrices[selectedPriceGroup]}
+            onChange={(e) => handleDefaultPriceChange(e.target.value)}
+            InputProps={{
+              startAdornment: <InputAdornment position="start">$</InputAdornment>,
+            }}
+            sx={{ 
+              '& .MuiOutlinedInput-root': {
+                height: '40px',
+                fontSize: '14px',
+                backgroundColor: '#fff',
+                '& fieldset': {
+                  borderColor: '#E5E7EB',
+                  borderRadius: '6px'
+                }
+              }
+            }}
+          />
+        </Box>
+
+        {/* Branch-specific Prices */}
+        <Box>
+          <Typography sx={{ fontSize: '13px', color: '#6B7280', mb: 1 }}>
+            Branch-specific Prices
+          </Typography>
+          <Box sx={{ 
+            maxHeight: '300px', 
+            overflowY: 'auto',
+            pr: 1,
+            '&::-webkit-scrollbar': {
+              width: '4px',
+            },
+            '&::-webkit-scrollbar-track': {
+              backgroundColor: '#F3F4F6',
+              borderRadius: '2px'
+            },
+            '&::-webkit-scrollbar-thumb': {
+              backgroundColor: '#CBD5E1',
+              borderRadius: '2px'
+            }
+          }}>
+            {formData.branchAvailability?.map((branchName) => {
+              const branch = branches.find(b => b.name === branchName);
+              if (!branch) return null;
+
+              return (
+                <Box
+                  key={branch.id}
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 2,
+                    p: 2,
+                    borderBottom: '1px solid #E5E7EB',
+                    '&:last-child': {
+                      borderBottom: 'none'
+                    }
+                  }}
+                >
+                  <Box sx={{ minWidth: '150px' }}>
+                    <Typography sx={{ fontSize: '13px', fontWeight: 500, color: '#111827' }}>
+                      {branch.name}
+                    </Typography>
+                  </Box>
+                  <TextField
+                    fullWidth
+                    type="number"
+                    value={productPrices[selectedPriceGroup]?.byBranch[branch.id] || ''}
+                    onChange={(e) => handleBranchPriceChange(branch.id, e.target.value)}
+                    InputProps={{
+                      startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                    }}
+                    sx={{ 
+                      '& .MuiOutlinedInput-root': {
+                        height: '36px',
+                        fontSize: '13px',
+                        backgroundColor: '#fff',
+                        '& fieldset': {
+                          borderColor: '#E5E7EB',
+                          borderRadius: '6px'
+                        }
+                      }
+                    }}
+                  />
+                </Box>
+              );
+            })}
+          </Box>
+        </Box>
+      </Box>
+    );
+  };
+
+  // Add these handler functions
+  const handleDefaultPriceChange = (value) => {
+    setDefaultPrices(prev => ({
+      ...prev,
+      [selectedPriceGroup]: value
+    }));
+  };
+
+  const handleBranchPriceChange = (branchId, value) => {
+    setProductPrices(prev => ({
+      ...prev,
+      [selectedPriceGroup]: {
+        ...prev[selectedPriceGroup],
+        byBranch: {
+          ...prev[selectedPriceGroup]?.byBranch,
+          [branchId]: value
+        }
+      }
+    }));
+  };
+
+  // Update the handleEditProduct function to work with formData
+  const handleEditProduct = async (productId) => {
+    try {
+      const response = await axios.get(`${API_ENDPOINTS.products}/${productId}`, getAuthHeader());
+      if (response.data.success) {
+        const productData = response.data.data;
+        
+        // Set form data
+        setFormData({
+          id: productData.id,
+          name: productData.name,
+          description: productData.description || '',
+          productType: productData.product_type,
+          category: productData.category_name,
+          pricingUnit: productData.unit_name,
+          barcode: productData.barcode || '',
+          image: productData.image || '',
+          initialStock: productData.stock_quantity?.toString() || '0',
+          alertQuantity: productData.alert_quantity?.toString() || '0',
+          purchase_price: productData.purchase_price?.toString() || '0',
+          status: productData.status || 'Active',
+          branchAvailability: productData.branch_products?.map(bp => bp.branch_name) || []
+        });
+
+        // Set branch prices
+        const newProductPrices = {};
+        
+        // Initialize price types from the priceTypes state
+        priceTypes.forEach(pt => {
+          newProductPrices[pt.name.toLowerCase()] = { all: 0, byBranch: {} };
+        });
+
+        // Process branch prices
+        Object.entries(productData.branch_prices || {}).forEach(([branchId, prices]) => {
+          prices.forEach(price => {
+            // Find price type name from ID
+            const priceType = priceTypes.find(pt => pt.id === price.price_type_id);
+            if (priceType) {
+              const priceTypeName = priceType.name.toLowerCase();
+              if (newProductPrices[priceTypeName]) {
+                newProductPrices[priceTypeName].byBranch[branchId] = price.price;
+              }
+            }
+          });
+        });
+
+        setProductPrices(newProductPrices);
+
+        // Set selected branches
+        const selectedBranchIds = productData.branch_products?.map(bp => bp.branch_id) || [];
+        setSelectedBranches(selectedBranchIds);
+
+        // Open dialog
+        setOpenDialog(true);
+      }
+    } catch (error) {
+      console.error('Error fetching product details:', error);
+      setSnackbar({
+        open: true,
+        message: error.response?.data?.message || 'Error fetching product details',
+        severity: 'error'
+      });
+    }
+  };
+
+  // In your form fields, use formData and setFormData
+  const handleInputChange = (field) => (event) => {
+    setFormData({
+      ...formData,
+      [field]: event.target.value
+    });
   };
 
   return (
@@ -1429,7 +2235,7 @@ const ManageProducts = () => {
               name="name"
               placeholder="Product Name"
               value={formData.name}
-              onChange={handleFormChange}
+              onChange={handleInputChange('name')}
               fullWidth
               sx={{ 
                 '& .MuiOutlinedInput-root': {
@@ -1447,13 +2253,58 @@ const ManageProducts = () => {
               }}
             />
 
+            {/* Purchase Price - Moved here */}
+            <TextField
+              name="purchase_price"
+              placeholder="Purchase Price"
+              type="number"
+              value={formData.purchase_price}
+              onChange={handleInputChange('purchase_price')}
+              fullWidth
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Box sx={{ 
+                      color: '#6B7280', 
+                      fontSize: '13px',
+                      pr: 1,
+                      borderRight: '1px solid #E5E7EB'
+                    }}>
+                      $
+                    </Box>
+                  </InputAdornment>
+                ),
+              }}
+              sx={{ 
+                '& .MuiOutlinedInput-root': {
+                  height: '40px',
+                  fontSize: '14px',
+                  backgroundColor: '#fff',
+                  '& fieldset': {
+                    borderColor: '#e5e7eb',
+                    borderRadius: '6px'
+                  },
+                  '&:hover fieldset': {
+                    borderColor: '#d1d5db',
+                  },
+                  '& .MuiInputAdornment-root': {
+                    ml: 1,
+                    mr: -0.5
+                  }
+                },
+                '& input': {
+                  pl: 1
+                }
+              }}
+            />
+
             {/* Category with Add Button */}
             <Box sx={{ display: 'flex', gap: 1 }}>
               <FormControl fullWidth>
                 <Select
                   name="category"
                   value={formData.category || ''}
-                  onChange={handleFormChange}
+                  onChange={handleInputChange('category')}
                   displayEmpty
                   sx={{ 
                     height: '40px',
@@ -1470,7 +2321,9 @@ const ManageProducts = () => {
                   renderValue={(value) => value || "Select Category"}
                 >
                   {categories.map((category) => (
-                    <MenuItem key={category} value={category}>{category}</MenuItem>
+                    <MenuItem key={category.id} value={category.name}>
+                      {category.name}
+                    </MenuItem>
                   ))}
                 </Select>
               </FormControl>
@@ -1498,7 +2351,7 @@ const ManageProducts = () => {
                 <Select
                   name="pricingUnit"
                   value={formData.pricingUnit || ''}
-                  onChange={handleFormChange}
+                  onChange={handleInputChange('pricingUnit')}
                   displayEmpty
                   sx={{ 
                     height: '40px',
@@ -1512,11 +2365,19 @@ const ManageProducts = () => {
                       borderColor: '#d1d5db',
                     },
                   }}
-                  renderValue={(value) => value || "Unit of Pricing"}
+                  renderValue={(value) => value || "Select Unit"}
                 >
-                  {pricingUnits.map((unit) => (
-                    <MenuItem key={unit} value={unit}>{unit}</MenuItem>
+                  {!unitsLoading && units && Array.isArray(units) && units.map((unit) => (
+                    <MenuItem key={unit.id} value={unit.name}>
+                      {unit.name}
+                    </MenuItem>
                   ))}
+                  {unitsLoading && (
+                    <MenuItem disabled>Loading units...</MenuItem>
+                  )}
+                  {!unitsLoading && (!units || !Array.isArray(units) || units.length === 0) && (
+                    <MenuItem disabled>No units available</MenuItem>
+                  )}
                 </Select>
               </FormControl>
               <IconButton 
@@ -1560,7 +2421,7 @@ const ManageProducts = () => {
                   borderRadius: '6px',
                   border: '1px solid #E5E7EB'
                 }}>
-                  {AVAILABLE_BRANCHES
+                  {branches
                     .filter(branch => formData.branchAvailability?.includes(branch.name))
                     .map((branch) => (
                       <Chip
@@ -1655,7 +2516,7 @@ const ManageProducts = () => {
                     }
                   }}
                 >
-                  {AVAILABLE_BRANCHES
+                  {branches
                     .filter(branch => !formData.branchAvailability?.includes(branch.name))
                     .map((branch) => (
                       <MenuItem 
@@ -1670,7 +2531,7 @@ const ManageProducts = () => {
                         {branch.name}
                       </MenuItem>
                     ))}
-                  {AVAILABLE_BRANCHES.length === formData.branchAvailability?.length && (
+                  {branches.length === formData.branchAvailability?.length && (
                     <MenuItem disabled sx={{ color: '#9CA3AF', fontSize: '13px' }}>
                       All branches selected
                     </MenuItem>
@@ -1701,7 +2562,7 @@ const ManageProducts = () => {
                   placeholder="Initial Stock"
                   type="number"
                   value={formData.initialStock}
-                  onChange={handleFormChange}
+                  onChange={handleInputChange('initialStock')}
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
@@ -1743,7 +2604,7 @@ const ManageProducts = () => {
                   placeholder="Alert Quantity"
                   type="number"
                   value={formData.alertQuantity}
-                  onChange={handleFormChange}
+                  onChange={handleInputChange('alertQuantity')}
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
@@ -1835,6 +2696,11 @@ const ManageProducts = () => {
                 </Box>
               </label>
             </Box>
+
+            {/* Only show pricing section if branches are selected */}
+            {formData.branchAvailability?.length > 0 && (
+              <PricingSection />
+            )}
           </Box>
         </DialogContent>
 
@@ -1892,35 +2758,25 @@ const ManageProducts = () => {
       />
 
       {/* Add Category Dialog */}
-      <AddItemDialog
+      <CategoryDialog
         open={addCategoryDialog}
         onClose={() => setAddCategoryDialog(false)}
-        title="Add New Category"
-        placeholder="Enter category name"
-        onSave={(newCategory) => {
-          setCategories(prev => [...prev, newCategory]);
-          setSnackbar({
-            open: true,
-            message: 'Category added successfully',
-            severity: 'success'
-          });
-        }}
+        categories={categories}
+        onUpdateCategory={handleUpdateCategory}
+        onDeleteCategory={handleDeleteCategory}
+        onAddCategory={handleAddCategory}
+        setSnackbar={setSnackbar}
       />
 
       {/* Add Unit Dialog */}
-      <AddItemDialog
+      <UnitDialog
         open={addUnitDialog}
         onClose={() => setAddUnitDialog(false)}
-        title="Add New Unit"
-        placeholder="Enter unit name"
-        onSave={(newUnit) => {
-          setPricingUnits(prev => [...prev, newUnit]);
-          setSnackbar({
-            open: true,
-            message: 'Unit added successfully',
-            severity: 'success'
-          });
-        }}
+        units={units}
+        onAddUnit={handleAddUnit}
+        onUpdateUnit={handleUpdateUnit}
+        onDeleteUnit={handleDeleteUnit}
+        setSnackbar={setSnackbar}
       />
 
       {/* Delete Confirmation Dialog */}
@@ -1930,6 +2786,15 @@ const ManageProducts = () => {
         onConfirm={handleConfirmDelete}
         productName={deleteDialog.product?.name}
         category={deleteDialog.product?.category}
+      />
+
+      {/* Delete Confirmation Dialog for units */}
+      <DeleteConfirmationDialog
+        open={deleteConfirmation.open}
+        onClose={() => setDeleteConfirmation({ open: false, unitId: null, unitName: '' })}
+        onConfirm={confirmDeleteUnit}
+        name={deleteConfirmation.unitName}
+        type="unit"
       />
 
       {/* Snackbar for notifications */}
@@ -1951,4 +2816,4 @@ const ManageProducts = () => {
   );
 };
 
-export default ManageProducts; 
+export default ManageProducts;

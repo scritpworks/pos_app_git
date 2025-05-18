@@ -1,4 +1,6 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import axios from 'axios';
+import { API_ENDPOINTS, getAuthHeader } from '../apiConfig/apiConfig';
 import {
   Box,
   Typography,
@@ -80,143 +82,7 @@ const StyledDataTable = styled(DataTable)`
 `;
 
 const ManageSuppliers = () => {
-  const [suppliers, setSuppliers] = useState([
-    {
-      id: 1,
-      name: 'Global Electronics Inc.',
-      contact: 'John Thompson',
-      email: 'john.thompson@globalelectronics.com',
-      phone: '+1 (212) 555-7890',
-      category: 'Electronics',
-      isActive: true,
-    },
-    {
-      id: 2,
-      name: 'Fresh Foods Distributors',
-      contact: 'Sarah Miller',
-      email: 'sarah.miller@freshfoods.com',
-      phone: '+1 (415) 555-3421',
-      category: 'Food & Beverage',
-      isActive: true,
-    },
-    {
-      id: 3,
-      name: 'Office Supplies Co.',
-      contact: 'Michael Davis',
-      email: 'mdavis@officesupplies.com',
-      phone: '+1 (312) 555-6543',
-      category: 'Office Supplies',
-      isActive: false,
-    },
-    {
-      id: 4,
-      name: 'Fashion Forward Apparel',
-      contact: 'Jennifer Wilson',
-      email: 'jwilson@fashionforward.com',
-      phone: '+1 (617) 555-9876',
-      category: 'Clothing',
-      isActive: true,
-    },
-    {
-      id: 5,
-      name: 'Tech Hardware Solutions',
-      contact: 'Robert Chen',
-      email: 'rchen@techhardware.com',
-      phone: '+1 (305) 555-2468',
-      category: 'Hardware',
-      isActive: true,
-    },
-    {
-      id: 6,
-      name: 'Global Furniture Inc.',
-      contact: 'Lisa Adams',
-      email: 'ladams@globalfurniture.com',
-      phone: '+1 (206) 555-1357',
-      category: 'Furniture',
-      isActive: true,
-    },
-    {
-      id: 7,
-      name: 'Medical Supplies Corp',
-      contact: 'Daniel Johnson',
-      email: 'djohnson@medicalsupplies.com',
-      phone: '+1 (404) 555-8642',
-      category: 'Medical',
-      isActive: true,
-    },
-    {
-      id: 8,
-      name: 'Organic Foods Ltd.',
-      contact: 'Emily Parker',
-      email: 'eparker@organicfoods.com',
-      phone: '+1 (303) 555-9753',
-      category: 'Food & Beverage',
-      isActive: false,
-    },
-    {
-      id: 9,
-      name: 'Smart Tech Innovations',
-      contact: 'William Brown',
-      email: 'wbrown@smarttech.com',
-      phone: '+1 (503) 555-3579',
-      category: 'Electronics',
-      isActive: true,
-    },
-    {
-      id: 10,
-      name: 'Industrial Equipment Co.',
-      contact: 'Olivia Martinez',
-      email: 'omartinez@industrialequip.com',
-      phone: '+1 (312) 555-2468',
-      category: 'Industrial',
-      isActive: true,
-    },
-    {
-      id: 11,
-      name: 'Luxury Goods Imports',
-      contact: 'James Lee',
-      email: 'jlee@luxuryimports.com',
-      phone: '+1 (214) 555-1234',
-      category: 'Luxury Goods',
-      isActive: false,
-    },
-    {
-      id: 12,
-      name: 'Digital Solutions Inc.',
-      contact: 'Sophia Garcia',
-      email: 'sgarcia@digitalsolutions.com',
-      phone: '+1 (212) 555-5678',
-      category: 'Software',
-      isActive: true,
-    },
-    {
-      id: 13,
-      name: 'Green Energy Products',
-      contact: 'Alexander Wright',
-      email: 'awright@greenenergy.com',
-      phone: '+1 (512) 555-9012',
-      category: 'Energy',
-      isActive: true,
-    },
-    {
-      id: 14,
-      name: 'Healthy Living Brands',
-      contact: 'Isabella Taylor',
-      email: 'itaylor@healthyliving.com',
-      phone: '+1 (602) 555-3456',
-      category: 'Health & Wellness',
-      isActive: true,
-    },
-    {
-      id: 15,
-      name: 'Construction Materials Ltd.',
-      contact: 'Matthew Robinson',
-      email: 'mrobinson@constructionmaterials.com',
-      phone: '+1 (213) 555-7890',
-      category: 'Construction',
-      isActive: false,
-    }
-  ]);
+  const [suppliers, setSuppliers] = useState([]);
 
   // Table states
   const [searchTerm, setSearchTerm] = useState('');
@@ -231,7 +97,7 @@ const ManageSuppliers = () => {
     contact: '',
     email: '',
     phone: '',
-    category: '',
+    address: '',
     isActive: true,
   });
   const [snackbar, setSnackbar] = useState({
@@ -241,13 +107,7 @@ const ManageSuppliers = () => {
   });
 
   // Filter states
-  const [categoryFilter, setCategoryFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
-
-  // Get unique categories for filter dropdown
-  const categories = useMemo(() => {
-    return [...new Set(suppliers.map(supplier => supplier.category))];
-  }, [suppliers]);
 
   // Table filtering and sorting
   const filteredSuppliers = useMemo(() => {
@@ -257,21 +117,16 @@ const ManageSuppliers = () => {
         supplier.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         supplier.contact.toLowerCase().includes(searchTerm.toLowerCase()) ||
         supplier.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        supplier.phone.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        supplier.category.toLowerCase().includes(searchTerm.toLowerCase());
-      
-      // Category filter
-      const categoryMatch = categoryFilter === 'all' || 
-        supplier.category === categoryFilter;
+        supplier.phone.toLowerCase().includes(searchTerm.toLowerCase());
       
       // Status filter
       const statusMatch = statusFilter === 'all' || 
         (statusFilter === 'active' && supplier.isActive) ||
         (statusFilter === 'inactive' && !supplier.isActive);
       
-      return searchMatch && categoryMatch && statusMatch;
+      return searchMatch && statusMatch;
     });
-  }, [suppliers, searchTerm, categoryFilter, statusFilter]);
+  }, [suppliers, searchTerm, statusFilter]);
 
   // Table handlers
   const handleSearchChange = (event) => {
@@ -279,17 +134,12 @@ const ManageSuppliers = () => {
   };
 
   // Filter handlers
-  const handleCategoryFilterChange = (event) => {
-    setCategoryFilter(event.target.value);
-  };
-
   const handleStatusFilterChange = (event) => {
     setStatusFilter(event.target.value);
   };
 
   const handleResetFilters = () => {
     setSearchTerm('');
-    setCategoryFilter('all');
     setStatusFilter('all');
   };
 
@@ -302,7 +152,7 @@ const ManageSuppliers = () => {
         contact: supplier.contact,
         email: supplier.email,
         phone: supplier.phone,
-        category: supplier.category,
+        address: supplier.address || '',
         isActive: supplier.isActive,
       });
     } else {
@@ -312,7 +162,7 @@ const ManageSuppliers = () => {
         contact: '',
         email: '',
         phone: '',
-        category: '',
+        address: '',
         isActive: true,
       });
     }
@@ -339,36 +189,56 @@ const ManageSuppliers = () => {
     }));
   };
 
-  const handleSubmit = () => {
-    if (editingSupplier) {
-      setSuppliers((prev) =>
-        prev.map((supplier) =>
-          supplier.id === editingSupplier.id
-            ? {
-                ...supplier,
-                ...formData,
-              }
-            : supplier
-        )
-      );
+  const handleSubmit = async () => {
+    try {
+      // Validate required fields
+      if (!formData.name || !formData.contact) {
+        setSnackbar({
+          open: true,
+          message: 'Supplier name and contact person are required',
+          severity: 'error'
+        });
+        return;
+      }
+
+      if (editingSupplier) {
+        const response = await axios.put(
+          API_ENDPOINTS.supplierById(editingSupplier.id),
+          formData,
+          getAuthHeader()
+        );
+        if (response.data.success) {
+          setSnackbar({
+            open: true,
+            message: 'Supplier updated successfully',
+            severity: 'success'
+          });
+          fetchSuppliers();
+        }
+      } else {
+        const response = await axios.post(
+          API_ENDPOINTS.suppliers,
+          formData,
+          getAuthHeader()
+        );
+        if (response.data.success) {
+          setSnackbar({
+            open: true,
+            message: 'New supplier added successfully',
+            severity: 'success'
+          });
+          fetchSuppliers();
+        }
+      }
+      handleCloseModal();
+    } catch (error) {
+      console.error('Error managing supplier:', error);
       setSnackbar({
         open: true,
-        message: 'Supplier updated successfully',
-        severity: 'success'
-      });
-    } else {
-      const newSupplier = {
-        id: suppliers.length + 1,
-        ...formData,
-      };
-      setSuppliers((prev) => [...prev, newSupplier]);
-      setSnackbar({
-        open: true,
-        message: 'New supplier added successfully',
-        severity: 'success'
+        message: error.response?.data?.message || 'Error managing supplier',
+        severity: 'error'
       });
     }
-    handleCloseModal();
   };
 
   // Delete handlers
@@ -377,15 +247,30 @@ const ManageSuppliers = () => {
     setIsConfirmDeleteOpen(true);
   };
 
-  const handleConfirmDelete = () => {
-    setSuppliers(suppliers.filter(supplier => supplier.id !== supplierToDelete.id));
-    setIsConfirmDeleteOpen(false);
-    setSupplierToDelete(null);
-    setSnackbar({
-      open: true,
-      message: 'Supplier deleted successfully',
-      severity: 'success'
-    });
+  const handleConfirmDelete = async () => {
+    try {
+      const response = await axios.delete(
+        API_ENDPOINTS.supplierById(supplierToDelete.id),
+        getAuthHeader()
+      );
+      if (response.data.success) {
+        setSnackbar({
+          open: true,
+          message: 'Supplier deleted successfully',
+          severity: 'success'
+        });
+        fetchSuppliers();
+      }
+      setIsConfirmDeleteOpen(false);
+      setSupplierToDelete(null);
+    } catch (error) {
+      console.error('Error deleting supplier:', error);
+      setSnackbar({
+        open: true,
+        message: error.response?.data?.message || 'Error deleting supplier',
+        severity: 'error'
+      });
+    }
   };
 
   const handleCancelDelete = () => {
@@ -399,6 +284,27 @@ const ManageSuppliers = () => {
     }
     setSnackbar({ ...snackbar, open: false });
   };
+
+  // Fetch suppliers from API
+  const fetchSuppliers = async () => {
+    try {
+      const response = await axios.get(API_ENDPOINTS.suppliers, getAuthHeader());
+      if (response.data.success) {
+        setSuppliers(response.data.data);
+      }
+    } catch (error) {
+      console.error('Error fetching suppliers:', error);
+      setSnackbar({
+        open: true,
+        message: 'Error fetching suppliers',
+        severity: 'error'
+      });
+    }
+  };
+
+  useEffect(() => {
+    fetchSuppliers();
+  }, []);
 
   // DataTable columns configuration
   const columns = [
@@ -511,32 +417,35 @@ const ManageSuppliers = () => {
       grow: 1,
     },
     {
-      name: 'Category',
+      name: 'Address',
       cell: row => (
         <Box sx={{ 
           display: 'flex', 
           alignItems: 'center', 
-          gap: 1
+          gap: 1,
+          maxWidth: '200px',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
         }}>
-          <BusinessIcon sx={{ color: 'rgb(100, 116, 139)', fontSize: 14, flexShrink: 0 }} />
-          <Chip
-            label={row.category}
-            size="small"
-            sx={{ 
-              fontWeight: 500,
-              backgroundColor: 'rgba(99, 102, 241, 0.1)',
-              color: '#6366f1',
-              borderRadius: '4px',
-              fontSize: '0.7rem',
-              height: '20px'
-            }}
-          />
+          <ShippingIcon sx={{ color: 'rgb(100, 116, 139)', fontSize: 14, flexShrink: 0 }} />
+          <Tooltip title={row.address} placement="top">
+            <Typography
+              component="span"
+              sx={{
+                fontSize: '0.75rem',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis'
+              }}
+            >
+              {row.address || 'N/A'}
+            </Typography>
+          </Tooltip>
         </Box>
       ),
       sortable: true,
-      selector: row => row.category,
-      id: 5,
-      grow: 1,
+      selector: row => row.address,
+      grow: 1.5,
     },
     {
       name: 'Status',
@@ -559,7 +468,6 @@ const ManageSuppliers = () => {
       selector: row => row.isActive,
       id: 6,
       sortFunction: (a, b) => {
-        // Custom sort for boolean values
         if (a.isActive === b.isActive) return 0;
         return a.isActive ? 1 : -1;
       },
@@ -694,75 +602,6 @@ const ManageSuppliers = () => {
             flexBasis: { md: '0' },
             justifyContent: { md: 'flex-end' }
           }}>
-            {/* Category Filter */}
-            <FormControl
-              variant="outlined"
-              size="small"
-              sx={{
-                width: { xs: 'calc(50% - 8px)', sm: 'calc(50% - 8px)', md: '100%' },
-                flexGrow: { xs: 1, sm: 1, md: 1 },
-                flexBasis: { md: '0' },
-                maxWidth: { md: '100%' },
-                position: 'relative',
-                zIndex: 2,
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: '8px',
-                  height: '44px',
-                  backgroundColor: 'white',
-                  borderColor: '#e2e8f0',
-                  '&:hover': {
-                    borderColor: '#cbd5e1',
-                  }
-                }
-              }}
-            >
-              <Select
-                value={categoryFilter}
-                onChange={handleCategoryFilterChange}
-                displayEmpty
-                inputProps={{ 'aria-label': 'Category filter' }}
-                renderValue={(selected) => {
-                  if (selected === 'all') return 'All Categories';
-                  return selected;
-                }}
-                sx={{ 
-                  fontSize: '0.875rem',
-                  color: 'rgb(100, 116, 139)',
-                  '& .MuiSelect-select': { 
-                    paddingTop: '11px',
-                    paddingBottom: '11px',
-                  },
-                  position: 'relative',
-                  zIndex: 10
-                }}
-                MenuProps={{
-                  PaperProps: {
-                    sx: { 
-                      maxHeight: 300,
-                      boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-                      zIndex: 10001
-                    }
-                  },
-                  disablePortal: false,
-                  anchorOrigin: {
-                    vertical: 'bottom',
-                    horizontal: 'left',
-                  },
-                  transformOrigin: {
-                    vertical: 'top',
-                    horizontal: 'left',
-                  }
-                }}
-              >
-                <MenuItem value="all" sx={{ fontSize: '0.875rem' }}>All Categories</MenuItem>
-                {categories.map((category) => (
-                  <MenuItem key={category} value={category} sx={{ fontSize: '0.875rem' }}>
-                    {category}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-
             {/* Status Filter */}
             <FormControl
               variant="outlined"
@@ -877,7 +716,7 @@ const ManageSuppliers = () => {
           noDataComponent={
             <Box sx={{ py: 5, px: 2 }}>
               <Typography variant="body2" sx={{ fontSize: '0.8125rem', color: 'rgb(100, 116, 139)' }}>
-                {searchTerm || categoryFilter !== 'all' || statusFilter !== 'all' 
+                {searchTerm || statusFilter !== 'all' 
                   ? 'No suppliers found matching your search criteria' 
                   : 'No suppliers available'}
               </Typography>
@@ -909,55 +748,18 @@ const ManageSuppliers = () => {
         onClose={handleCloseModal}
         maxWidth="sm"
         fullWidth
-        disablePortal={false}
-        keepMounted={false}
-        sx={{ 
-          zIndex: 9999,
-          '& .MuiDialog-paper': {
-            borderRadius: '12px',
-            maxWidth: '500px',
-            margin: { xs: '16px', sm: '32px' },
-            boxShadow: '0px 8px 24px rgba(0, 0, 0, 0.15)',
-            overflow: 'visible',
-            position: 'relative',
-            zIndex: 9999
-          },
-          '& .MuiBackdrop-root': {
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            zIndex: 9998,
-            backdropFilter: 'none'
-          }
-        }}
       >
-        <Box sx={{ 
-          p: 3,
-          position: 'relative',
-          '&:focus': { outline: 'none' }
-        }}>
+        <Box sx={{ p: 3 }}>
           <Box sx={{ 
             display: 'flex', 
             justifyContent: 'space-between', 
             alignItems: 'center',
             mb: 3
           }}>
-            <Typography variant="h5" sx={{ 
-              color: 'rgb(26, 32, 53)',
-              fontSize: '1.5rem',
-              fontWeight: 600
-            }}>
+            <Typography variant="h5">
               {editingSupplier ? 'Edit Supplier' : 'Add New Supplier'}
             </Typography>
-            <IconButton 
-              onClick={handleCloseModal}
-              size="small"
-              sx={{ 
-                color: 'rgb(26, 32, 53)',
-                position: 'absolute',
-                right: 16,
-                top: 16,
-                zIndex: 10000
-              }}
-            >
+            <IconButton onClick={handleCloseModal}>
               <CloseIcon />
             </IconButton>
           </Box>
@@ -965,39 +767,25 @@ const ManageSuppliers = () => {
           <Stack spacing={3}>
             <TextField
               fullWidth
-              label="Supplier Name"
+              label="Supplier Name *"
               name="name"
               value={formData.name}
               onChange={handleInputChange}
               variant="outlined"
-              InputLabelProps={{
-                shrink: true,
-                sx: { color: 'rgb(100, 116, 139)' }
-              }}
-              placeholder="Enter supplier name"
-              sx={{ 
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: '8px'
-                }
-              }}
+              required
+              error={!formData.name}
+              helperText={!formData.name ? 'Supplier name is required' : ''}
             />
             <TextField
               fullWidth
-              label="Contact Person"
+              label="Contact Person *"
               name="contact"
               value={formData.contact}
               onChange={handleInputChange}
               variant="outlined"
-              InputLabelProps={{
-                shrink: true,
-                sx: { color: 'rgb(100, 116, 139)' }
-              }}
-              placeholder="Enter contact person name"
-              sx={{ 
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: '8px'
-                }
-              }}
+              required
+              error={!formData.contact}
+              helperText={!formData.contact ? 'Contact person is required' : ''}
             />
             <TextField
               fullWidth
@@ -1006,16 +794,6 @@ const ManageSuppliers = () => {
               value={formData.email}
               onChange={handleInputChange}
               variant="outlined"
-              InputLabelProps={{
-                shrink: true,
-                sx: { color: 'rgb(100, 116, 139)' }
-              }}
-              placeholder="Enter email address"
-              sx={{ 
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: '8px'
-                }
-              }}
             />
             <TextField
               fullWidth
@@ -1024,34 +802,16 @@ const ManageSuppliers = () => {
               value={formData.phone}
               onChange={handleInputChange}
               variant="outlined"
-              InputLabelProps={{
-                shrink: true,
-                sx: { color: 'rgb(100, 116, 139)' }
-              }}
-              placeholder="Enter phone number"
-              sx={{ 
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: '8px'
-                }
-              }}
             />
             <TextField
               fullWidth
-              label="Category"
-              name="category"
-              value={formData.category}
+              label="Address"
+              name="address"
+              value={formData.address}
               onChange={handleInputChange}
               variant="outlined"
-              InputLabelProps={{
-                shrink: true,
-                sx: { color: 'rgb(100, 116, 139)' }
-              }}
-              placeholder="Enter supplier category"
-              sx={{ 
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: '8px'
-                }
-              }}
+              multiline
+              rows={2}
             />
             <FormControlLabel
               control={
@@ -1074,38 +834,12 @@ const ManageSuppliers = () => {
             <Button
               variant="outlined"
               onClick={handleCloseModal}
-              sx={{
-                color: 'rgb(26, 32, 53)',
-                borderColor: 'rgb(26, 32, 53)',
-                borderRadius: '8px',
-                '&:hover': {
-                  borderColor: 'rgb(26, 32, 53)',
-                  backgroundColor: 'rgba(26, 32, 53, 0.04)'
-                },
-                px: 3,
-                py: 1,
-                textTransform: 'uppercase',
-                fontWeight: 500,
-                minWidth: '120px'
-              }}
             >
               Cancel
             </Button>
             <Button
               variant="contained"
               onClick={handleSubmit}
-              sx={{
-                bgcolor: 'rgb(26, 32, 53)',
-                borderRadius: '8px',
-                '&:hover': {
-                  bgcolor: 'rgb(26, 32, 53, 0.9)'
-                },
-                px: 3,
-                py: 1,
-                textTransform: 'uppercase',
-                fontWeight: 500,
-                minWidth: '120px'
-              }}
             >
               {editingSupplier ? 'Update Supplier' : 'Add Supplier'}
             </Button>
@@ -1119,25 +853,6 @@ const ManageSuppliers = () => {
         onClose={handleCancelDelete}
         maxWidth="xs"
         fullWidth
-        disablePortal={false}
-        keepMounted={false}
-        sx={{ 
-          zIndex: 9999,
-          '& .MuiDialog-paper': {
-            borderRadius: '12px',
-            maxWidth: '400px',
-            margin: { xs: '16px', sm: '32px' },
-            boxShadow: '0px 8px 24px rgba(0, 0, 0, 0.15)',
-            overflow: 'visible',
-            position: 'relative',
-            zIndex: 9999
-          },
-          '& .MuiBackdrop-root': {
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            zIndex: 9998,
-            backdropFilter: 'none'
-          }
-        }}
       >
         <Box sx={{ p: 3 }}>
           <Typography variant="h5" sx={{ 

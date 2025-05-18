@@ -18,7 +18,12 @@ import {
   Help as SupportIcon,
   Settings as SettingsIcon,
   People,
-  SupervisorAccount
+  SupervisorAccount,
+  LocalOffer as PriceGroupIcon,
+  AttachMoney as BranchPricesIcon,
+  MonetizationOn as AllBranchPricesIcon,
+  Store as BranchProductsIcon,
+  PointOfSale as POSIcon
 } from '@mui/icons-material';
 import { Tooltip } from '@mui/material';
 import './Sidebar.css';
@@ -28,8 +33,13 @@ const Sidebar = ({ isOpen }) => {
   
   const menuItems = [
     { title: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
+    { title: 'Point of Sale', icon: <POSIcon />, path: '/pos' },
     { title: 'Manage Products', icon: <InventoryIcon />, path: '/manage-products' },
-    { title: 'Stock Transfer', icon: <StockTransferIcon />, path: '/stock-transfer' },
+    { title: 'Branch Products', icon: <BranchProductsIcon />, path: '/branch-products' },
+    { title: 'Price Groups', icon: <PriceGroupIcon />, path: '/price-groups' },
+    { title: 'Branch Prices', icon: <BranchPricesIcon />, path: '/branch-prices' },
+    { title: 'All Branch Prices', icon: <AllBranchPricesIcon />, path: '/all-branch-prices' },
+    { title: 'Stock Transfer', icon: <StockTransferIcon />, path: '/stock-transfers' },
     { title: 'Purchases', icon: <PurchasesIcon />, path: '/purchases' },
     { title: 'Purchase History', icon: <PurchaseHistoryIcon />, path: '/purchase-history' },
     { title: 'Pending Orders', icon: <PendingOrdersIcon />, path: '/pending-orders' },

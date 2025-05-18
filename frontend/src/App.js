@@ -17,6 +17,16 @@ import SignIn from './Accounts/SignIn';
 import { useMediaQuery, ThemeProvider, createTheme } from '@mui/material';
 import AdminDashboard from './pages/AdminDashboard';
 import ManageLoginStatus from './pages/ManageLoginStatus';
+import PriceGroups from './pages/PriceGroups';
+import BranchPrices from './pages/BranchPrices';
+import AllBranchPrices from './pages/AllBranchPrices';
+import { Link } from 'react-router-dom';
+import { ListItem, ListItemIcon, ListItemText } from '@mui/material';
+import InventoryIcon from '@mui/icons-material/Inventory';
+import BranchProducts from './pages/BranchProducts';
+import Purchases from './pages/Purchases';
+import StockTransfers from './pages/StockTransfers';
+import POS from './pages/POS';
 
 // Create theme with consistent breakpoints and z-index values
 const theme = createTheme({
@@ -93,6 +103,7 @@ function App() {
                   <Route path="/dashboard" element={<AdminDashboard />} />
                   
                   {/* Other routes... */}
+                  <Route path="/pos" element={<POS />} />
                   <Route path="/sales-history" element={<SalesHistory />} />
                   <Route path="/categories" element={<Categories />} />
                   <Route path="/branch-assignment" element={<BranchAssignment />} />
@@ -109,6 +120,12 @@ function App() {
                   <Route path="/manage-products" element={<ManageProducts />} />
                   <Route path="/support" element={<Support />} />
                   <Route path="/settings" element={<Settings />} />
+                  <Route path="/price-groups" element={<PriceGroups />} />
+                  <Route path="/branch-prices" element={<BranchPrices />} />
+                  <Route path="/all-branch-prices" element={<AllBranchPrices />} />
+                  <Route path="/stock-transfers" element={<StockTransfers />} />
+                  <Route path="/branch-products" element={<BranchProducts />} />
+                  <Route path="/purchases" element={<Purchases />} />
                   {/* Optional: Change default redirect to dashboard instead of sales-history */}
                   <Route path="*" element={<Navigate to="/dashboard" />} />
                 </Routes>
